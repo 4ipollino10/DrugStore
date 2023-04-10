@@ -17,9 +17,12 @@ namespace DrugStoreAPI.Entities
         public void Configure(EntityTypeBuilder<Client> builder)
         {
             builder
-                .ToTable("clinets");
+                .ToTable("clients");
             builder
                 .HasKey(c => c.Id);
+            builder
+                .Property(c => c.Id)
+                .HasColumnName("id");
             builder
                 .Property(c => c.Name)
                 .HasColumnName("name")
@@ -27,6 +30,10 @@ namespace DrugStoreAPI.Entities
             builder
                 .Property(c => c.PhoneNumber)
                 .HasColumnName("phone_number")
+                .IsRequired(true);
+            builder
+                .Property(c => c.Address)
+                .HasColumnName("address")
                 .IsRequired(true);
         }
     }

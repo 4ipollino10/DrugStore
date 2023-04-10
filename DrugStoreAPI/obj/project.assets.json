@@ -677,11 +677,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\work\\DrugStoreAPI\\DrugStoreAPI.csproj",
+      "projectUniqueName": "D:\\work\\DrugStore\\DrugStore\\DrugStoreAPI\\DrugStoreAPI.csproj",
       "projectName": "DrugStoreAPI",
-      "projectPath": "D:\\work\\DrugStoreAPI\\DrugStoreAPI.csproj",
+      "projectPath": "D:\\work\\DrugStore\\DrugStore\\DrugStoreAPI\\DrugStoreAPI.csproj",
       "packagesPath": "C:\\Users\\enemy\\.nuget\\packages\\",
-      "outputPath": "D:\\work\\DrugStoreAPI\\obj\\",
+      "outputPath": "D:\\work\\DrugStore\\DrugStore\\DrugStoreAPI\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\enemy\\AppData\\Roaming\\NuGet\\NuGet.Config",

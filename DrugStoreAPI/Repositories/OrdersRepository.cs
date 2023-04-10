@@ -31,7 +31,9 @@ namespace DrugStoreAPI.Repositories
 
         public Order UpdateOrder(Order order)
         {
-            var updatedOrder = applicationDbContext.Orders.Update(order).Entity;
+            var updatedOrder = applicationDbContext.Orders.Find(order.Id);
+            updatedOrder = order;
+
             applicationDbContext.SaveChanges();
 
             return updatedOrder;
@@ -39,7 +41,14 @@ namespace DrugStoreAPI.Repositories
 
         public Order GetOrderById(int id)
         {
-            return applicationDbContext.Orders.Find(id);
+            Order order =  applicationDbContext.Orders.Find(id);
+            order.Client = GetClientById(order.ClientId);
+            return order;
+        }
+
+        public Client GetClientById(int id)
+        {
+            return applicationDbContext.Clients.Find(id);
         }
     }
 }

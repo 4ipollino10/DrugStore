@@ -6,13 +6,25 @@ namespace DrugStoreAPI.Mappers.OrderMappers
 {
     public class OrdersMapper
     {
+        public ClientDTO ClientToClientDTO(Client client)
+        {
+            ClientDTO clientDTO = new()
+            {
+                Id = client.Id,
+                Address = client.Address,
+                Name = client.Name,
+                PhoneNumber = client.PhoneNumber,
+            };
+
+            return clientDTO;
+        }
 
         public Client ClientDTOtoClient(ClientDTO dto)
         {
             Client client = new()
             {
                 Id = dto.Id,
-                Name = dto.ClientName,
+                Name = dto.Name,
                 PhoneNumber = dto.PhoneNumber,
                 Address = dto.Address,
             };
@@ -35,6 +47,8 @@ namespace DrugStoreAPI.Mappers.OrderMappers
                 
             };
 
+            order.OrderDate = DateTime.SpecifyKind(order.OrderDate, DateTimeKind.Utc);
+
             List<OrdersDrugs> ordersDrugs = new();
 
             foreach(var drugOrderDTO in dto.Drugs)
@@ -55,9 +69,33 @@ namespace DrugStoreAPI.Mappers.OrderMappers
             return order;
         }
 
-        public OrderDTO OrderToOrderDTO(Order dto)
+        public OrderDTO OrderToOrderDTO(Order order)
         {
-            return new OrderDTO();
+            MedicamentsMapper medicamentsMapper = new();
+
+            OrderDTO orderDTO = new()
+            {
+                AppointedDate = order.AppointedDate,
+                Client = ClientToClientDTO(order.Client),
+                Id = order.Id,
+                OrderDate = order.OrderDate,
+                RecievingDate = order.ReceivingDate,
+                OrderStatus = order.OrderStatus
+            };
+
+            List<DrugOrderDTO> drugOrderDTOs = new();
+
+            foreach(var ordersDrugs in order.OrdersDrugs)
+            {
+                drugOrderDTOs.Add(new DrugOrderDTO()
+                {
+                    Drug = medicamentsMapper.DrugToDrugDTO(ordersDrugs.Drug),
+                });
+            }
+
+            orderDTO.Drugs = drugOrderDTOs;
+
+            return orderDTO;
         }
     }
 }

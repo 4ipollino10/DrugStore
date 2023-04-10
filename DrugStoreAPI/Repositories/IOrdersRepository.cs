@@ -8,5 +8,6 @@ namespace DrugStoreAPI.Repositories
         Order InsertOrder(Order order);
         Order GetOrderById(int id);
         Order UpdateOrder(Order order);
+        Client GetClientById(int id);
     }
 }

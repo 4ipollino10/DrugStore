@@ -16,7 +16,6 @@ namespace DrugStoreAPI.Entities
         public double CookingTime { get; set; }
         public ICollection<DrugsComponents> DrugsComponents { get; set; } = new List<DrugsComponents>();
         public ICollection<OrdersDrugs> OrdersDrugs { get; set; } = new List<OrdersDrugs>();
-        public ICollection<MissingComponents> MissingComponents { get; set; } = new List<MissingComponents>();
     }
 
     public class DrugConfiguration : IEntityTypeConfiguration<Drug>
@@ -53,6 +52,10 @@ namespace DrugStoreAPI.Entities
             builder
                 .Property(c => c.CriticalAmount)
                 .HasColumnName("critical_amount")
+                .IsRequired(true);
+            builder
+                .Property(d => d.CookingTime)
+                .HasColumnName("cooking_time")
                 .IsRequired(true);
         }
     }

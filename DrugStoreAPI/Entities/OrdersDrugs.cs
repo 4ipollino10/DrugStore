@@ -16,6 +16,14 @@ namespace DrugStoreAPI.Entities
         public void Configure(EntityTypeBuilder<OrdersDrugs> builder)
         {
             builder
+                .ToTable("orders_drugs");
+            builder
+                .Property(d => d.DrugId)
+                .HasColumnName("drug_id");
+            builder
+                .Property(d => d.OrderId)
+                .HasColumnName("order_id");
+            builder
                 .HasKey(od => new { od.DrugId, od.OrderId });
             builder
                 .HasOne(od => od.Drug)

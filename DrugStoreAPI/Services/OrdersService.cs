@@ -24,6 +24,7 @@ namespace DrugStoreAPI.Services
             OrdersMapper mapper = new();
 
             Client client = mapper.ClientDTOtoClient(dto.Client);
+
             client = ordersRepository.InsertClient(client);
 
             SetMedicationReadiness(dto.Drugs);
@@ -34,11 +35,18 @@ namespace DrugStoreAPI.Services
             order.ClientId = client.Id;
             order.OrdersDrugs = GetOrdersDrugs(order, dto);
 
+            
             if (IsEnoughDrugs(dto.Drugs))
             {
                 order.OrderStatus = Utils.OrderStatus.COMPLETED;
                 order.AppointedDate = order.OrderDate;
                 order.ReceivingDate = order.OrderDate;
+
+                dto = mapper.OrderToOrderDTO(ordersRepository.InsertOrder(order));
+                
+                SetMedicationReadiness(dto.Drugs);
+                
+                return dto;
             }
 
             if (IsEnoughComponents(dto.Drugs))
@@ -47,21 +55,31 @@ namespace DrugStoreAPI.Services
 
                 order.OrderStatus = Utils.OrderStatus.IN_PROGRESS;
                 order.AppointedDate = order.OrderDate.AddMinutes(maxCookingTime);
-            }
 
+                dto = mapper.OrderToOrderDTO(ordersRepository.InsertOrder(order));
+
+                SetMedicationReadiness(dto.Drugs);
+
+                return dto;
+            }
+            
             order.OrderStatus = Utils.OrderStatus.DELAYED;
             order.AppointedDate = order.OrderDate.AddDays(1);
 
-            ordersRepository.InsertOrder(order);
-            return mapper.OrderToOrderDTO(order);
-            
+            dto = mapper.OrderToOrderDTO(ordersRepository.InsertOrder(order));
+
+            SetMedicationReadiness(dto.Drugs);
+
+            return dto;
         }
 
         public OrderDTO MakeDrugs(OrderDTO dto)
         {
             OrdersMapper ordersMapper = new();
 
-            dto = ordersMapper.OrderToOrderDTO(GetOrder(dto)); 
+            dto = ordersMapper.OrderToOrderDTO(GetOrder(dto));
+
+            SetMedicationReadiness(dto.Drugs);
 
             foreach(var drugOrderDTO in dto.Drugs)
             {
@@ -76,12 +94,13 @@ namespace DrugStoreAPI.Services
                 }
             }
 
+            dto = ordersMapper.OrderToOrderDTO(ordersRepository.UpdateOrder(ordersMapper.OrderDTOtoOrder(dto)));
+            
             dto.OrderStatus = Utils.OrderStatus.COMPLETED;
-
-            ordersRepository.UpdateOrder(ordersMapper.OrderDTOtoOrder(dto));
 
             return dto;
         }
+
         public OrderDTO StockComponents(OrderDTO dto)
         {
             OrdersMapper ordersMapper = new();
@@ -215,6 +234,20 @@ namespace DrugStoreAPI.Services
             }
 
             return true;
+        }
+
+        public ClientDTO GetClient()
+        {
+            OrdersMapper ordersMapper = new OrdersMapper();
+
+            return ordersMapper.ClientToClientDTO(ordersRepository.GetClientById(1));
+        }
+
+        public OrderDTO GetOrder()
+        {
+            OrdersMapper ordersMapper = new();
+
+            return ordersMapper.OrderToOrderDTO(ordersRepository.GetOrderById(2));
         }
 
     }

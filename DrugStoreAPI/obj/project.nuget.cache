@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ScF9sM/7oTZHBRkGJLtZIZ+WzQZhIm9o15RUE1o1QRV7aBSjEofy3ig684UjjN/oVEZ7BwNWv/rw7R0G5MXeQg==",
+  "dgSpecHash": "77JutNXyi2H6wQy+zSwjhaQnbxFMD2ByOL7EYXPCwX/d+ZsnoYYjGW8KJk0TDOv/AZ0/2Eq+pHm5QGeZCyjcTw==",
   "success": true,
-  "projectFilePath": "D:\\work\\DrugStoreAPI\\DrugStoreAPI.csproj",
+  "projectFilePath": "D:\\work\\DrugStore\\DrugStore\\DrugStoreAPI\\DrugStoreAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\enemy\\.nuget\\packages\\microsoft.entityframeworkcore\\7.0.3\\microsoft.entityframeworkcore.7.0.3.nupkg.sha512",
     "C:\\Users\\enemy\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\7.0.3\\microsoft.entityframeworkcore.abstractions.7.0.3.nupkg.sha512",

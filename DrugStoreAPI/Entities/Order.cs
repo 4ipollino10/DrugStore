@@ -12,7 +12,7 @@ namespace DrugStoreAPI.Entities
         public DateTime ReceivingDate { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public int ClientId { get; set; }
-        public Client? Client { get; set; }
+        public Client Client { get; set; }
         public ICollection<OrdersDrugs> OrdersDrugs { get; set; } = new List<OrdersDrugs>();
     }
 
@@ -32,6 +32,10 @@ namespace DrugStoreAPI.Entities
                 .HasColumnName("order_date")
                 .IsRequired(true);
             builder
+                .HasOne(o => o.Client)
+                .WithMany(c => c.Orders)
+                .HasForeignKey(o => o.ClientId);
+            builder
                 .Property(o => o.ClientId)
                 .HasColumnName("client_id")
                 .IsRequired(true);
@@ -47,10 +51,7 @@ namespace DrugStoreAPI.Entities
                 .Property(o => o.ReceivingDate)
                 .HasColumnName("receiving_date")
                 .IsRequired(true);
-            builder
-                .HasOne(o => o.Client)
-                .WithMany(c => c.Orders)
-                .HasForeignKey(o => o.ClientId);
+            
         }
     }
 }

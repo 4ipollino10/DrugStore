@@ -16,7 +16,7 @@ namespace DrugStoreAPI.Controllers
         }
 
         [HttpPost]
-        public OrderDTO AddOrder(OrderDTO dto)
+        public OrderDTO Add(OrderDTO dto)
         {
             return orderService.AddOrder(dto);
         }
@@ -31,6 +31,21 @@ namespace DrugStoreAPI.Controllers
         public OrderDTO StockComponents(OrderDTO dto)
         {
             return orderService.StockComponents(dto);
+        }
+
+        [HttpGet]
+        public DateTime Asd()
+        {
+            return new DateTime();
+        }
+        [HttpGet]
+        public ClientDTO GetClient()
+        {
+            return orderService.GetClient();
+        }
+        public OrderDTO GetOrder()
+        {
+            return orderService.GetOrder();
         }
     }
 }

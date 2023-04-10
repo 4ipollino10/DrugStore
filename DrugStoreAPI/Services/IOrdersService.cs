@@ -7,7 +7,7 @@ namespace DrugStoreAPI.Services
         public OrderDTO AddOrder(OrderDTO dto);
         public OrderDTO MakeDrugs(OrderDTO dto);
         public OrderDTO StockComponents(OrderDTO dto);
-
-
+        public ClientDTO GetClient();
+        public OrderDTO GetOrder();
     }
 }

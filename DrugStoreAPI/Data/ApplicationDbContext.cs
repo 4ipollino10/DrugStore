@@ -10,7 +10,6 @@ namespace DrugStoreAPI.Data
         public DbSet<DrugsComponents> DrugsComponents { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrdersDrugs> OrdersDrugs { get; set; }
-        public DbSet<MissingComponents> MissingComponents { get; set; }
         public DbSet<Client> Clients { get; set; }
 
         public ApplicationDbContext(DbContextOptions options) : base(options) { }
@@ -22,7 +21,6 @@ namespace DrugStoreAPI.Data
             modelBuilder.ApplyConfiguration(new DrugsComponnetsConfiguration());
             modelBuilder.ApplyConfiguration(new OrderConfiguration());
             modelBuilder.ApplyConfiguration(new OrdersDrugsConfiguration());
-            modelBuilder.ApplyConfiguration(new MissingComponentsConfiguration());
             modelBuilder.ApplyConfiguration(new ClientConfiguration());
         }
     }
