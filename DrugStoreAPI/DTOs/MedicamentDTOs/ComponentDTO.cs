@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure;
 
 namespace DrugStoreAPI.DTOs.MedicamentDTOs
 {
@@ -10,5 +11,6 @@ namespace DrugStoreAPI.DTOs.MedicamentDTOs
         public double Price { get; set; }
         public int Amount { get; set; }
         public int CriticalAmount { get; set; }
+
     }
 }

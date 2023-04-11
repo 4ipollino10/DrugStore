@@ -94,10 +94,10 @@ namespace DrugStoreAPI.Services
                 }
             }
 
-            dto = ordersMapper.OrderToOrderDTO(ordersRepository.UpdateOrder(ordersMapper.OrderDTOtoOrder(dto)));
-            
             dto.OrderStatus = Utils.OrderStatus.COMPLETED;
 
+            dto = ordersMapper.OrderToOrderDTO(ordersRepository.UpdateOrder(ordersMapper.OrderDTOtoOrder(dto)));
+            
             return dto;
         }
 
@@ -164,11 +164,6 @@ namespace DrugStoreAPI.Services
         private Drug GetDrug(DrugDTO drugDTO) 
         {
             return medicamentsRepository.GetDrugById(drugDTO.Id);
-        }
-
-        private Component GetComponent(ComponentDTO dto)
-        {
-            return medicamentsRepository.GetComponentById(dto.Id);
         }
 
         private Order GetOrder(OrderDTO dto)

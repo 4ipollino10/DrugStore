@@ -30,5 +30,11 @@ namespace DrugStoreAPI.Controllers
         {
             medicamentService.DeleteDrug(dto);
         }
+        [HttpGet]
+        public DrugDTO GetDrugs()
+        {
+            return medicamentService.GetDrugs();
+        }
+
     }
 }

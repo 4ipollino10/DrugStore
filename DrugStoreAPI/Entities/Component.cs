@@ -12,7 +12,7 @@ namespace DrugStoreAPI.Entities
         public double Price { get; set; }
         public int Amount { get; set; }
         public int CriticalAmount { get; set; }
-        public ICollection<DrugsComponents> DrugsComponents { get; set; } = new List<DrugsComponents>();
+        public virtual ICollection<DrugsComponents> DrugsComponents { get; set; } = new List<DrugsComponents>();
     }
 
     public class ComponentConfiguration : IEntityTypeConfiguration<Component>

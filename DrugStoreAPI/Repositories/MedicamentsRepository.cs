@@ -1,6 +1,8 @@
 ﻿using DrugStoreAPI.Data;
 using DrugStoreAPI.DTOs;
 using DrugStoreAPI.Entities;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace DrugStoreAPI.Repositories
 {
@@ -13,28 +15,32 @@ namespace DrugStoreAPI.Repositories
             this.applicationDbContext = applicationDbContext;
         }
 
-        public Component InsertComponent(Component component)
+        public async Task<Component> InsertComponent(Component component)
         {
-            Component insertComponent = applicationDbContext.Components.Add(component).Entity;
-            applicationDbContext.SaveChanges();
+            var insertComponent = await applicationDbContext.Components.AddAsync(component);
+            await applicationDbContext.SaveChangesAsync();
             
-            return insertComponent;
+            return insertComponent.Entity;
         }
 
         public Component UpdateComponent(Component component)
         {
-            var curComponent = applicationDbContext.Components.Find(component.Id);
+            var curComponent = applicationDbContext.Components.Update(component).Entity;
             curComponent = component;
             applicationDbContext.SaveChanges();
 
             return curComponent;
         }
 
-        public void DeleteComponent(Component component)
+        public async Task<bool> DeleteComponent(int id)
         {
-            applicationDbContext.Components.Remove(component);
+            var result = await GetComponentById(id);
 
-            applicationDbContext.SaveChanges();
+            applicationDbContext.Components.Remove(result);
+            
+            await applicationDbContext.SaveChangesAsync();
+
+            return result != null ? true : false;
         }
 
         public Drug InsertDrug(Drug drug)
@@ -44,11 +50,30 @@ namespace DrugStoreAPI.Repositories
             
             return insertDrug;
         }
+        public async Task<Component> GetComponentById(int id)
+        {
+            return await applicationDbContext.Components.FindAsync(id);
+        }
 
         public Drug UpdateDrug(Drug drug)
         {
             var curDrug = applicationDbContext.Drugs.Find(drug.Id);
-            curDrug = drug;
+
+            /*foreach(var drugComponent in drug.DrugsComponents)
+            {
+                drugComponent.Component = GetComponentById(drugComponent.ComponentId);
+            }*/
+            
+            curDrug.Amount = drug.Amount;
+            curDrug.CookingTime = drug.CookingTime;
+            curDrug.CriticalAmount = drug.CriticalAmount;
+            curDrug.DrugsComponents = drug.DrugsComponents;
+            curDrug.Name = drug.Name;
+            curDrug.Price = drug.Price;
+            curDrug.Technology = drug.Technology;
+            curDrug.Type = drug.Type;
+
+
             applicationDbContext.SaveChanges();
 
             return curDrug;
@@ -61,14 +86,15 @@ namespace DrugStoreAPI.Repositories
             applicationDbContext.SaveChanges();
         }
 
-        public Component GetComponentById(int id)
-        {
-            return applicationDbContext.Components.Find(id);
-        }
 
         public Drug GetDrugById(int id)
         {
             return applicationDbContext.Drugs.Find(id);
+        }
+
+        public async Task<IEnumerable<Component>> GetAllComponents()
+        {
+            return await applicationDbContext.Components.ToListAsync();
         }
     }
 }

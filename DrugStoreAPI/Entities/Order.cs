@@ -12,8 +12,8 @@ namespace DrugStoreAPI.Entities
         public DateTime ReceivingDate { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public int ClientId { get; set; }
-        public Client Client { get; set; }
-        public ICollection<OrdersDrugs> OrdersDrugs { get; set; } = new List<OrdersDrugs>();
+        public virtual Client Client { get; set; }
+        public virtual ICollection<OrdersDrugs> OrdersDrugs { get; set; } = new List<OrdersDrugs>();
     }
 
     public class OrderConfiguration : IEntityTypeConfiguration<Order>

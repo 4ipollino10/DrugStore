@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using DrugStoreAPI.Exceptions;
 using DrugStoreAPI.DTOs.MedicamentDTOs;
+using System.Net;
+using LanguageExt.Common;
 
 namespace DrugStoreAPI.Controllers
 {
@@ -15,23 +17,25 @@ namespace DrugStoreAPI.Controllers
         {
             this.medicamentService = medicamentService;
         }
-        
+
         [HttpPost]
-        public ComponentDTO Add(ComponentDTO dto)
+        public async Task<IActionResult> Add(ComponentDTO dto)
         {
-            return medicamentService.AddComponent(dto); 
+            var result = await medicamentService.AddComponent(dto);
+            
+            return Ok(result);
         }
 
         [HttpPost]
-        public ComponentDTO Update(ComponentDTO dto)
+        public async Task<ComponentDTO> Update(ComponentDTO dto)
         {
-            return medicamentService.UpdateComponent(dto);
+            throw new NotImplementedException();
         }
 
         [HttpDelete]
-        public void Delete(ComponentDTO dto)
+        public async Task<bool> Delete(ComponentDTO dto)
         {
-            medicamentService.DeleteComponent(dto);
+            throw new NotImplementedException(nameof(dto));
         }
 
 

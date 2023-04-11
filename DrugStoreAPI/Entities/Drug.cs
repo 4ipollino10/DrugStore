@@ -14,8 +14,8 @@ namespace DrugStoreAPI.Entities
         public int CriticalAmount { get; set; }
         public string Technology { get; set; }
         public double CookingTime { get; set; }
-        public ICollection<DrugsComponents> DrugsComponents { get; set; } = new List<DrugsComponents>();
-        public ICollection<OrdersDrugs> OrdersDrugs { get; set; } = new List<OrdersDrugs>();
+        public virtual ICollection<DrugsComponents> DrugsComponents { get; set; } = new List<DrugsComponents>();
+        public virtual ICollection<OrdersDrugs> OrdersDrugs { get; set; } = new List<OrdersDrugs>();
     }
 
     public class DrugConfiguration : IEntityTypeConfiguration<Drug>

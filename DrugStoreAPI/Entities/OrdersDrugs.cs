@@ -6,9 +6,9 @@ namespace DrugStoreAPI.Entities
     public class OrdersDrugs
     {
         public int DrugId { get; set; }
-        public Drug? Drug { get; set; }
+        public virtual Drug? Drug { get; set; }
         public int OrderId { get; set; }
-        public Order? Order { get; set; }
+        public virtual Order? Order { get; set; }
     }
 
     public class OrdersDrugsConfiguration : IEntityTypeConfiguration<OrdersDrugs>

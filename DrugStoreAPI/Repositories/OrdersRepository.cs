@@ -6,10 +6,12 @@ namespace DrugStoreAPI.Repositories
     public class OrdersRepository : IOrdersRepository
     {
         private readonly ApplicationDbContext applicationDbContext;
+        private readonly IMedicamentsRepository medicamentRepository;
 
-        public OrdersRepository(ApplicationDbContext applicationDbContext)
+        public OrdersRepository(ApplicationDbContext applicationDbContext, IMedicamentsRepository medicamentRepository)
         {
             this.applicationDbContext = applicationDbContext;
+            this.medicamentRepository = medicamentRepository;
         }
 
 
@@ -31,18 +33,23 @@ namespace DrugStoreAPI.Repositories
 
         public Order UpdateOrder(Order order)
         {
-            var updatedOrder = applicationDbContext.Orders.Find(order.Id);
-            updatedOrder = order;
+            var currentOrder = applicationDbContext.Orders.Find(order.Id);
 
+            foreach(var orderDrug in currentOrder.OrdersDrugs)
+            {
+                
+            }
+
+            currentOrder.OrderStatus = order.OrderStatus;
+            
             applicationDbContext.SaveChanges();
 
-            return updatedOrder;
+            return currentOrder;
         }
 
         public Order GetOrderById(int id)
         {
             Order order =  applicationDbContext.Orders.Find(id);
-            order.Client = GetClientById(order.ClientId);
             return order;
         }
 

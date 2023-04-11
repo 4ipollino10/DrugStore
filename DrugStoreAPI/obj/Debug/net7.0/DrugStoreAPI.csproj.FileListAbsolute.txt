@@ -62,3 +62,7 @@ D:\work\DrugStore\DrugStore\DrugStoreAPI\obj\Debug\net7.0\scopedcss\bundle\DrugS
 D:\work\DrugStore\DrugStore\DrugStoreAPI\obj\Debug\net7.0\DrugStoreAPI.csproj.CopyComplete
 D:\work\DrugStore\DrugStore\DrugStoreAPI\obj\Debug\net7.0\DrugStoreAPI.genruntimeconfig.cache
 D:\work\DrugStore\DrugStore\DrugStoreAPI\obj\Debug\net7.0\ref\DrugStoreAPI.dll
+D:\work\DrugStore\DrugStore\DrugStoreAPI\bin\Debug\net7.0\Castle.Core.dll
+D:\work\DrugStore\DrugStore\DrugStoreAPI\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.Proxies.dll
+D:\work\DrugStore\DrugStore\DrugStoreAPI\bin\Debug\net7.0\LanguageExt.Core.dll
+D:\work\DrugStore\DrugStore\DrugStoreAPI\bin\Debug\net7.0\Microsoft.Bcl.AsyncInterfaces.dll

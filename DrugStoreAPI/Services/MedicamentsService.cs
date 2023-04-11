@@ -3,6 +3,7 @@ using DrugStoreAPI.Entities;
 using DrugStoreAPI.Exceptions;
 using DrugStoreAPI.Mappers.MedicamentsMappers;
 using DrugStoreAPI.Repositories;
+using LanguageExt.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DrugStoreAPI.Services
@@ -16,34 +17,50 @@ namespace DrugStoreAPI.Services
             this.medicamentsRepository = medicamentsRepository;
         }
         
-        public ComponentDTO AddComponent(ComponentDTO dto)
+        public async Task<ComponentDTO> AddComponent(ComponentDTO dto)
         {
-            MedicamentsMapper mapper = new MedicamentsMapper();
-            Component component = mapper.ComponentDTOtoComponent(dto);
+            var mapper = new MedicamentsMapper();
+            
+            var currentComponents = await GetAllComponents();
 
-            component = medicamentsRepository.InsertComponent(component);
-
-            return mapper.ComponentToComponentDTO(component);
-        }
-
-        public ComponentDTO UpdateComponent(ComponentDTO dto)
-        {
-            MedicamentsMapper mapper = new();
-            Component updateComponent = mapper.ComponentDTOtoComponent(dto);
-
-            return mapper.ComponentToComponentDTO(medicamentsRepository.UpdateComponent(updateComponent));
-        }
-
-        public void DeleteComponent(ComponentDTO dto) 
-        {
-            MedicamentsMapper mapper = new();
-
-            if(GetComponent(dto).DrugsComponents.Count > 0)
+            foreach(var currentComponent in currentComponents)
             {
-                throw new ComponentRelationshipException("asd");
+                if(currentComponent.Name == dto.Name)
+                {
+                    throw new BadRequestException($"Компонента с таким именем: {dto.Name} уже существует");
+                }
             }
 
-            medicamentsRepository.DeleteComponent(mapper.ComponentDTOtoComponent(dto));
+            var result = await medicamentsRepository.InsertComponent(mapper.ComponentDTOtoComponent(dto));
+
+            return mapper.ComponentToComponentDTO(result);
+        }
+
+        public Task<ComponentDTO> UpdateComponent(ComponentDTO dto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> DeleteComponent(int id)
+        {
+            var deleteResult = await medicamentsRepository.DeleteComponent(id);
+
+            return deleteResult;
+        }
+
+        public async Task<IEnumerable<ComponentDTO>> GetAllComponents()
+        {
+            var mapper = new MedicamentsMapper();
+
+            var gotComponents = await medicamentsRepository.GetAllComponents();
+
+            var components = new List<ComponentDTO>();
+            foreach(var component in gotComponents)
+            {
+                components.Add(mapper.ComponentToComponentDTO(component));
+            }
+            
+            return components;
         }
 
         public DrugDTO AddDrug(DrugDTO dto)
@@ -76,35 +93,19 @@ namespace DrugStoreAPI.Services
 
             medicamentsRepository.DeleteDrug(mapper.DrugDTOtoDrug(dto));
         }
-
-        private Drug GetDrug(DrugDTO dto)
+        public DrugDTO GetDrugs()
         {
-            return medicamentsRepository.GetDrugById(dto.Id);
+            MedicamentsMapper mapper = new();
+            return mapper.DrugToDrugDTO(medicamentsRepository.GetDrugById(1));
         }
-        private Component GetComponent(ComponentDTO dto)
+        /*private Component GetComponent(ComponentDTO dto)
         {
             return medicamentsRepository.GetComponentById(dto.Id);
-        }
+        }*/
 
         private List<DrugsComponents> GetDrugsComponents(Drug drug, List<DrugComponentDTO> drugComponentDTOs)
         {
-            List<DrugsComponents> drugsComponents = new();
-            
-            foreach(var drugComponentDTO in drugComponentDTOs)
-            {
-                Component component = GetComponent(drugComponentDTO.Component);
-
-                drugsComponents.Add(new DrugsComponents()
-                {
-                    Drug = drug,
-                    DrugId = drug.Id,
-                    Component = component,
-                    ComponentId = component.Id,
-                    Amount = drugComponentDTO.Amount 
-                });
-            }
-
-            return drugsComponents;
+            throw new NotImplementedException();
         }
     }
 }

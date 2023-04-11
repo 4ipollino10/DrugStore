@@ -7,9 +7,9 @@ namespace DrugStoreAPI.Entities
     public class DrugsComponents
     {
         public int DrugId { get; set; }
-        public Drug Drug { get; set; }
+        public virtual Drug Drug { get; set; }
         public int ComponentId { get; set; }
-        public Component Component { get; set; }
+        public virtual Component Component { get; set; }
         public int Amount { get; set; }
     }
 
