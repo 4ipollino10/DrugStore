@@ -1,6 +1,7 @@
 ﻿using DrugStoreAPI.DTOs.OrderDTOs;
 using DrugStoreAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.DataAnnotations;
 
 namespace DrugStoreAPI.Controllers
 {
@@ -16,36 +17,69 @@ namespace DrugStoreAPI.Controllers
         }
 
         [HttpPost]
-        public OrderDTO Add(OrderDTO dto)
+        public async Task<IActionResult> Add(OrderDTO dto)
         {
-            return orderService.AddOrder(dto);
-        }
+            var order = await orderService.AddOrder(dto);
 
-        [HttpPost]
-        public OrderDTO MakeDrugs(OrderDTO dto)
-        {
-            return orderService.MakeDrugs(dto);
-        }
-
-        [HttpPost]
-        public OrderDTO StockComponents(OrderDTO dto)
-        {
-            return orderService.StockComponents(dto);
+            return Ok(order);
         }
 
         [HttpGet]
-        public DateTime Asd()
+        public async Task<IActionResult> GetOrderById(int id)
         {
-            return new DateTime();
+            var order = await orderService.GetOrderById(id);
+
+            return Ok(order);
         }
+
         [HttpGet]
-        public ClientDTO GetClient()
+        public async Task<IActionResult> GetAllOrders()
         {
-            return orderService.GetClient();
+            var order = await orderService.GetAllOrders();
+
+            return Ok(order);
         }
-        public OrderDTO GetOrder()
+
+        [HttpPost]
+        public async Task<IActionResult> MakeOrder(OrderDTO dto)
         {
-            return orderService.GetOrder();
+            var order = await orderService.MakeOrder(dto);
+
+            return Ok(order);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> StockComponents(OrderDTO dto)
+        {
+            var order = await orderService.StockComponents(dto);
+
+            return Ok(order);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CompleteOrder(OrderDTO dto)
+        {
+            var result = await orderService.CompleteOrder(dto);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetClientById(int id)
+        {
+            var client = await orderService.GetClientById(id);
+
+            return Ok(client);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllClients()
+        {
+            var clients = await orderService.GetAllClients();
+
+            return Ok(clients);
+        }
+
+
     }
 }

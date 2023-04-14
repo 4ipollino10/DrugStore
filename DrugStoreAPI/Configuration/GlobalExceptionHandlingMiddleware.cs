@@ -29,22 +29,53 @@ namespace DrugStoreAPI.Configuration
         {
             HttpStatusCode statusCode;
 
-            var stackTrace = string.Empty;
-            var message = string.Empty;
+            string stackTrace = string.Empty;
+            string? message;
             var exceptionType = e.GetType();
 
-            if (exceptionType == typeof(BadRequestException))
+            if (exceptionType == typeof(DuplicateComponentException))
             {
                 message = e.Message;
                 statusCode = HttpStatusCode.BadRequest;
-                stackTrace = e.StackTrace;
+            }
+            else if (exceptionType == typeof(ComponentNotFoundException))
+            {
+                message = e.Message;
+                statusCode = HttpStatusCode.BadRequest;
+            }
+            else if (exceptionType == typeof(DrugNotFoundException))
+            {
+                message = e.Message;
+                statusCode = HttpStatusCode.BadRequest;
+            }
+            else if (exceptionType == typeof(DuplicateDrugException))
+            {
+                message = e.Message;
+                statusCode = HttpStatusCode.BadRequest;
+            }
+            else if (exceptionType == typeof(ClientNotFoundException))
+            {
+                message = e.Message;
+                statusCode = HttpStatusCode.BadRequest;
+            }
+            else if (exceptionType == typeof(OrderNotFoundException))
+            {
+                message = e.Message;
+                statusCode = HttpStatusCode.BadRequest;
+            }
+            else if (exceptionType == typeof(OrderBadRequestException))
+            {
+                message = e.Message;
+                statusCode = HttpStatusCode.BadRequest;
             }
             else
             {
                 statusCode = HttpStatusCode.InternalServerError;
+                message = e.Message;
+                stackTrace = e.StackTrace;
             }
 
-            var exceptionResult = JsonSerializer.Serialize(new { error = message});
+            var exceptionResult = JsonSerializer.Serialize(new { error = message, stackTrace = stackTrace });
 
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)statusCode;

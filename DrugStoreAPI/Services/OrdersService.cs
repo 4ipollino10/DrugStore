@@ -1,6 +1,7 @@
 ﻿using DrugStoreAPI.DTOs.MedicamentDTOs;
 using DrugStoreAPI.DTOs.OrderDTOs;
 using DrugStoreAPI.Entities;
+using DrugStoreAPI.Exceptions;
 using DrugStoreAPI.Mappers.MedicamentsMappers;
 using DrugStoreAPI.Mappers.OrderMappers;
 using DrugStoreAPI.Repositories;
@@ -12,118 +13,272 @@ namespace DrugStoreAPI.Services
     {
         private readonly IOrdersRepository ordersRepository;
         private readonly IMedicamentsRepository medicamentsRepository;
+        private readonly IMedicamentsService medicamentsService;
 
-        public OrdersService(IOrdersRepository orderRepository, IMedicamentsRepository medicamentsRepository) 
+        public OrdersService(IOrdersRepository orderRepository, IMedicamentsRepository medicamentsRepository, IMedicamentsService medicamentsService) 
         {
             this.ordersRepository = orderRepository;
             this.medicamentsRepository = medicamentsRepository;
+            this.medicamentsService = medicamentsService;
         }
         
-        public OrderDTO AddOrder(OrderDTO dto)
+        public async Task<OrderDTO> AddOrder(OrderDTO dto)
         {
-            OrdersMapper mapper = new();
+            var mapper = new OrdersMapper();
+            var client = await ordersRepository.GetClientById(dto.Client.Id);
 
-            Client client = mapper.ClientDTOtoClient(dto.Client);
+            if(client == null)
+            {
+                Console.WriteLine("da");
+                client = await ordersRepository.InsertClient(mapper.ClientDTOtoClient(dto.Client));
+            }
 
-            client = ordersRepository.InsertClient(client);
+            var order = mapper.OrderDTOtoOrder(dto);
+            
+            order.Client = client;
+            order.ClientId = client.Id;
+            order.OrdersDrugs = await GetOrdersDrugs(order, dto);
 
             SetMedicationReadiness(dto.Drugs);
 
-            var order = mapper.OrderDTOtoOrder(dto);
-
-            order.Client = client;
-            order.ClientId = client.Id;
-            order.OrdersDrugs = GetOrdersDrugs(order, dto);
-
-            
             if (IsEnoughDrugs(dto.Drugs))
             {
                 order.OrderStatus = Utils.OrderStatus.COMPLETED;
                 order.AppointedDate = order.OrderDate;
                 order.ReceivingDate = order.OrderDate;
-
-                dto = mapper.OrderToOrderDTO(ordersRepository.InsertOrder(order));
-                
-                SetMedicationReadiness(dto.Drugs);
-                
-                return dto;
             }
-
-            if (IsEnoughComponents(dto.Drugs))
+            else if (IsEnoughComponents(dto.Drugs))
             {
                 double maxCookingTime = FindMaxCookingTime(dto.Drugs);
 
                 order.OrderStatus = Utils.OrderStatus.IN_PROGRESS;
                 order.AppointedDate = order.OrderDate.AddMinutes(maxCookingTime);
-
-                dto = mapper.OrderToOrderDTO(ordersRepository.InsertOrder(order));
-
-                SetMedicationReadiness(dto.Drugs);
-
-                return dto;
             }
+            else
+            {
+                order.OrderStatus = Utils.OrderStatus.DELAYED;
+                order.AppointedDate = order.OrderDate.AddDays(1);
+            }
+
+            var insertedOrder = await ordersRepository.InsertOrder(order);
+            var insertedOrderDTO = mapper.OrderToOrderDTO(insertedOrder);
+            SetMedicationReadiness(insertedOrderDTO.Drugs);
             
-            order.OrderStatus = Utils.OrderStatus.DELAYED;
-            order.AppointedDate = order.OrderDate.AddDays(1);
-
-            dto = mapper.OrderToOrderDTO(ordersRepository.InsertOrder(order));
-
-            SetMedicationReadiness(dto.Drugs);
-
-            return dto;
+            return insertedOrderDTO;
         }
 
-        public OrderDTO MakeDrugs(OrderDTO dto)
+        public async Task<OrderDTO> GetOrderById(int id)
         {
-            OrdersMapper ordersMapper = new();
+            var order = await ordersRepository.GetOrderById(id);
 
-            dto = ordersMapper.OrderToOrderDTO(GetOrder(dto));
+            if(order == null)
+            {
+                throw new OrderNotFoundException($"Order with such id: \"{id}\" do not exists!");
+            }
 
-            SetMedicationReadiness(dto.Drugs);
+            var mapper = new OrdersMapper();
+
+            return mapper.OrderToOrderDTO(order);
+        }
+
+        public async Task<IEnumerable<OrderDTO>> GetAllOrders()
+        {
+            var currentOrders = await ordersRepository.GetAllOrders();
+
+            if (currentOrders == null)
+            {
+                throw new OrderNotFoundException("There are no orders!");
+            }
+
+            var mapper = new OrdersMapper();
+
+            var orders = new List<OrderDTO>();
+
+            foreach (var order in currentOrders)
+            {
+                orders.Add(mapper.OrderToOrderDTO(order));
+            }
+
+            return orders;
+        }
+        
+        public async Task<ClientDTO> GetClientById(int id)
+        {
+
+            var client  = await ordersRepository.GetClientById(id);
+
+            if(client == null)
+            {
+                throw new ClientNotFoundException($"Client with such id: \"{id}\" do not exists!");
+            }
+            
+            var mapper = new OrdersMapper();
+
+            return mapper.ClientToClientDTO(client);
+        }
+
+        public async Task<IEnumerable<ClientDTO>> GetAllClients()
+        {
+            var currentClients = await ordersRepository.GetAllClients();
+
+            if (currentClients == null)
+            {
+                throw new OrderNotFoundException("There are no clients!");
+            }
+
+            var mapper = new OrdersMapper();
+
+            var clients = new List<ClientDTO>();
+
+            foreach (var client in currentClients)
+            {
+                clients.Add(mapper.ClientToClientDTO(client));
+            }
+
+            return clients;
+        }
+
+        public async Task<OrderDTO> MakeOrder(OrderDTO dto)
+        {
+            if(dto.OrderStatus == Utils.OrderStatus.COMPLETED)
+            {
+                throw new OrderBadRequestException("This order is completed!");
+            }
+            if (dto.OrderStatus == Utils.OrderStatus.DELAYED)
+            {
+                throw new OrderBadRequestException("This order is delayed!");
+            }
+
+            var ordersMapper = new OrdersMapper();
+            var medicametsMapper = new MedicamentsMapper();
+
+            var orderDTO = await GetOrderById(dto.Id);
+
+            SetMedicationReadiness(orderDTO.Drugs);
+
+            foreach(var drugOrderDTO in orderDTO.Drugs)
+            {
+                if (drugOrderDTO.IsEnough)
+                {
+                    continue;
+                }
+
+                await MakeDrug(drugOrderDTO);
+            }
+
+            orderDTO.OrderStatus = Utils.OrderStatus.COMPLETED;
+
+            await ordersRepository.UpdateOrder(ordersMapper.OrderDTOtoOrder(orderDTO));
+
+            return orderDTO;
+        }
+
+        private async Task<bool> MakeDrug(DrugOrderDTO drugOrderDTO)
+        {
+            var medicamentsMapper = new MedicamentsMapper();
+
+            drugOrderDTO.Drug.Amount += 1;
+
+            foreach (var drugComponentDTO in drugOrderDTO.Drug.Components)
+            {
+                drugComponentDTO.Component.Amount -= drugComponentDTO.Amount;
+
+                var component = await medicamentsRepository
+                    .UpdateComponent(medicamentsMapper.ComponentDTOtoComponent(drugComponentDTO.Component));
+                
+                drugComponentDTO.Component = medicamentsMapper.ComponentToComponentDTO(component);
+            }
+
+            var drug = medicamentsMapper.DrugDTOtoDrug(drugOrderDTO.Drug);
+            drug.DrugsComponents = await medicamentsService.GetDrugsComponents(drug, drugOrderDTO.Drug.Components);
+            drug = await medicamentsRepository.UpdateDrug(drug);
+
+            drugOrderDTO.Drug = medicamentsMapper.DrugToDrugDTO(drug);
+
+            return true;
+        }
+
+        public async Task<OrderDTO> StockComponents(OrderDTO dto)
+        {
+            if (dto.OrderStatus == Utils.OrderStatus.COMPLETED)
+            {
+                throw new OrderBadRequestException("This order is completed!");
+            }
+            if (dto.OrderStatus == Utils.OrderStatus.IN_PROGRESS)
+            {
+                throw new OrderBadRequestException("This order is in progress!");
+            }
+
+            var mapper = new OrdersMapper();
+
+            var orderDTO = await GetOrderById(dto.Id);
+
+            SetMedicationReadiness(orderDTO.Drugs);
+
+            foreach(var drugOrderDTO in orderDTO.Drugs)
+            {
+                if (drugOrderDTO.IsReady)
+                {
+                    continue;
+                }
+
+                await StockComponent(drugOrderDTO);
+            }
+
+            orderDTO.OrderStatus = Utils.OrderStatus.IN_PROGRESS;
+
+            await ordersRepository.UpdateOrder(mapper.OrderDTOtoOrder(orderDTO));
+
+            return orderDTO;
+        }
+
+        private async Task<bool> StockComponent(DrugOrderDTO drugOrderDTO)
+        {
+            var medicamentsMapper = new MedicamentsMapper();
+            
+            foreach (var drugComponentDTO in drugOrderDTO.Drug.Components)
+            {
+                if (drugComponentDTO.IsReady)
+                {
+                    continue;
+                }
+
+                drugComponentDTO.Component.Amount += drugComponentDTO.Amount * 10;
+
+                var component = await medicamentsRepository
+                    .UpdateComponent(medicamentsMapper.ComponentDTOtoComponent(drugComponentDTO.Component));
+                
+                drugComponentDTO.Component = medicamentsMapper.ComponentToComponentDTO(component);
+            }
+
+            return true;
+        }
+
+        public async Task<bool> CompleteOrder(OrderDTO dto)
+        {
+            if (dto.OrderStatus == Utils.OrderStatus.DELAYED)
+            {
+                throw new OrderBadRequestException("This order is delayed!");
+            }
+            if (dto.OrderStatus == Utils.OrderStatus.IN_PROGRESS)
+            {
+                throw new OrderBadRequestException("This order is in progress!");
+            }
+
+            var medicamentsMapper = new MedicamentsMapper();
 
             foreach(var drugOrderDTO in dto.Drugs)
             {
-                if(!drugOrderDTO.IsEnough)
-                {
-                    drugOrderDTO.Drug.Amount += 1;
+                drugOrderDTO.Drug.Amount -= 1;
+                
+                var drug = medicamentsMapper.DrugDTOtoDrug(drugOrderDTO.Drug);
+                drug.DrugsComponents = await medicamentsService.GetDrugsComponents(drug, drugOrderDTO.Drug.Components);
+                drug = await medicamentsRepository.UpdateDrug(drug);
 
-                    foreach(var drugComponentDTO in drugOrderDTO.Drug.Components)
-                    {
-                        drugComponentDTO.Component.Amount -= drugComponentDTO.Amount;
-                    }
-                }
+                drugOrderDTO.Drug = medicamentsMapper.DrugToDrugDTO(drug);
             }
 
-            dto.OrderStatus = Utils.OrderStatus.COMPLETED;
-
-            dto = ordersMapper.OrderToOrderDTO(ordersRepository.UpdateOrder(ordersMapper.OrderDTOtoOrder(dto)));
-            
-            return dto;
-        }
-
-        public OrderDTO StockComponents(OrderDTO dto)
-        {
-            OrdersMapper ordersMapper = new();
-
-            dto = ordersMapper.OrderToOrderDTO(GetOrder(dto));
-
-            foreach(var OrderDrugDTO in dto.Drugs)
-            {
-                if (!OrderDrugDTO.IsReady)
-                {
-                    foreach(var componentDTO in OrderDrugDTO.Drug.Components)
-                    {
-                        if (!componentDTO.IsReady)
-                        {
-                            componentDTO.Component.Amount += componentDTO.Amount * 10;
-                        }
-                    }
-                }
-            }
-
-            ordersRepository.UpdateOrder(ordersMapper.OrderDTOtoOrder(dto));
-
-            return dto;
+            return true;
         }
 
         private double FindMaxCookingTime(List<DrugOrderDTO> drugOrderDTOs)
@@ -141,13 +296,13 @@ namespace DrugStoreAPI.Services
             return maxcookingTime;
         }
 
-        private List<OrdersDrugs> GetOrdersDrugs(Order order, OrderDTO dto)
+        private async Task<ICollection<OrdersDrugs>> GetOrdersDrugs(Order order, OrderDTO dto)
         {
-            List<OrdersDrugs> ordersDrugs = new();
+            var ordersDrugs = new List<OrdersDrugs>();
 
             foreach(var orderDTO in dto.Drugs)
             {
-                Drug drug = GetDrug(orderDTO.Drug);
+                var drug = await medicamentsRepository.GetDrugById(orderDTO.Drug.Id);
 
                 ordersDrugs.Add(new OrdersDrugs()
                 {
@@ -161,16 +316,6 @@ namespace DrugStoreAPI.Services
             return ordersDrugs;
         }
 
-        private Drug GetDrug(DrugDTO drugDTO) 
-        {
-            return medicamentsRepository.GetDrugById(drugDTO.Id);
-        }
-
-        private Order GetOrder(OrderDTO dto)
-        {
-            return ordersRepository.GetOrderById(dto.Id);
-        }
-
         private void SetMedicationReadiness(List<DrugOrderDTO> drugOrderDTOs)
         {
             foreach(var drugOrderDTO in drugOrderDTOs)
@@ -182,8 +327,6 @@ namespace DrugStoreAPI.Services
 
         private void SetComponentsReadiness(DrugOrderDTO dto)
         {
-            dto.IsReady = true;
-
             foreach(var drugComponentDTO in dto.Drug.Components)
             {
                 if(drugComponentDTO.Component.Amount >= drugComponentDTO.Amount)
@@ -192,7 +335,7 @@ namespace DrugStoreAPI.Services
                 }
                 else
                 {
-                    dto.IsReady = false;
+                    drugComponentDTO.IsReady = false;
                 }
             }
         }
@@ -209,9 +352,12 @@ namespace DrugStoreAPI.Services
         {
             foreach(var drugOrderDTO in drugOrderDTOs)
             {
-                if(!drugOrderDTO.IsReady)
+                foreach(var drugComponentDTO in drugOrderDTO.Drug.Components)
                 {
-                    return false;
+                    if(!drugComponentDTO.IsReady)
+                    {
+                        return false;
+                    }
                 }
             }
 
@@ -231,19 +377,6 @@ namespace DrugStoreAPI.Services
             return true;
         }
 
-        public ClientDTO GetClient()
-        {
-            OrdersMapper ordersMapper = new OrdersMapper();
-
-            return ordersMapper.ClientToClientDTO(ordersRepository.GetClientById(1));
-        }
-
-        public OrderDTO GetOrder()
-        {
-            OrdersMapper ordersMapper = new();
-
-            return ordersMapper.OrderToOrderDTO(ordersRepository.GetOrderById(2));
-        }
 
     }
 }

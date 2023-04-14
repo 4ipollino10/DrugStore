@@ -4,10 +4,15 @@ namespace DrugStoreAPI.Services
 {
     public interface IOrdersService
     {
-        public OrderDTO AddOrder(OrderDTO dto);
-        public OrderDTO MakeDrugs(OrderDTO dto);
-        public OrderDTO StockComponents(OrderDTO dto);
-        public ClientDTO GetClient();
-        public OrderDTO GetOrder();
+        Task<OrderDTO> AddOrder(OrderDTO dto);
+        Task<OrderDTO> GetOrderById(int id);
+        Task<IEnumerable<OrderDTO>> GetAllOrders();
+
+        Task<OrderDTO> MakeOrder(OrderDTO dto);
+        Task<OrderDTO> StockComponents(OrderDTO dto);
+        Task<bool> CompleteOrder(OrderDTO dto);
+
+        Task<ClientDTO> GetClientById(int id);
+        Task<IEnumerable<ClientDTO>> GetAllClients();
     }
 }

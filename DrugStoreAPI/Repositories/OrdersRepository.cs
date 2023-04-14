@@ -1,5 +1,6 @@
 ﻿using DrugStoreAPI.Data;
 using DrugStoreAPI.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace DrugStoreAPI.Repositories
 {
@@ -14,48 +15,55 @@ namespace DrugStoreAPI.Repositories
             this.medicamentRepository = medicamentRepository;
         }
 
-
-        public Client InsertClient(Client client)
+        public async Task<Client> InsertClient(Client client)
         {
-            var insertedClient = applicationDbContext.Clients.Add(client).Entity;
-            applicationDbContext.SaveChanges();
+            var insertedClient = await applicationDbContext.Clients.AddAsync(client);
+            await applicationDbContext.SaveChangesAsync();
 
-            return insertedClient;
+            return insertedClient.Entity;
+        }
+        public async Task<Client> GetClientById(int id)
+        {
+            return await applicationDbContext.Clients.FindAsync(id);
         }
 
-        public Order InsertOrder(Order order)
+        public async Task<IEnumerable<Client>> GetAllClients()
         {
-            var insertedOrder = applicationDbContext.Orders.Add(order).Entity;
-            applicationDbContext.SaveChanges();
-
-            return insertedOrder;
+            return await applicationDbContext.Clients.ToListAsync();
         }
 
-        public Order UpdateOrder(Order order)
+        public async Task<Order> InsertOrder(Order order)
         {
-            var currentOrder = applicationDbContext.Orders.Find(order.Id);
+            var insertedOrder = await applicationDbContext.Orders.AddAsync(order);
+            await applicationDbContext.SaveChangesAsync();
 
-            foreach(var orderDrug in currentOrder.OrdersDrugs)
+            return insertedOrder.Entity;
+        }
+        public async Task<Order> GetOrderById(int id)
+        {
+            return await applicationDbContext.Orders.FindAsync(id);
+        }
+
+        public async Task<IEnumerable<Order>> GetAllOrders()
+        {
+            return await applicationDbContext.Orders.ToListAsync();
+        }
+
+        public async Task<Order> UpdateOrder(Order order)
+        {
+            var currentOrder = await applicationDbContext.Orders.FindAsync(order.Id);
+            
+            foreach(var orderDrug in order.OrdersDrugs)
             {
-                
+                orderDrug.Drug = await applicationDbContext.Drugs.FindAsync(orderDrug.DrugId);
             }
 
             currentOrder.OrderStatus = order.OrderStatus;
+            currentOrder.OrdersDrugs = order.OrdersDrugs;
             
-            applicationDbContext.SaveChanges();
+            await applicationDbContext.SaveChangesAsync();
 
             return currentOrder;
-        }
-
-        public Order GetOrderById(int id)
-        {
-            Order order =  applicationDbContext.Orders.Find(id);
-            return order;
-        }
-
-        public Client GetClientById(int id)
-        {
-            return applicationDbContext.Clients.Find(id);
         }
     }
 }

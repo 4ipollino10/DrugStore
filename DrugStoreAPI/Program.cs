@@ -14,18 +14,18 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseLazyLoadingProxies().UseNpgsql(
         builder.Configuration
-        .GetConnectionString("DrugStoreConnectionString")), ServiceLifetime.Singleton);
+        .GetConnectionString("DrugStoreConnectionString")), ServiceLifetime.Scoped);
 
-builder.Services.AddSingleton<IMedicamentsService, MedicamentsService>();
-builder.Services.AddSingleton<IMedicamentsRepository, MedicamentsRepository>();
-builder.Services.AddSingleton<IOrdersService, OrdersService>();
-builder.Services.AddSingleton<IOrdersRepository, OrdersRepository>();
+builder.Services.AddScoped<IMedicamentsService, MedicamentsService>();
+builder.Services.AddScoped<IMedicamentsRepository, MedicamentsRepository>();
+builder.Services.AddScoped<IOrdersService, OrdersService>();
+builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
 
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
-app.UseAuthorization();
+app.UseRouting();
 
 app.MapControllers();
 

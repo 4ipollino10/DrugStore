@@ -7,14 +7,16 @@ namespace DrugStoreAPI.Repositories
     public interface IMedicamentsRepository
     {
         Task<Component> InsertComponent(Component component);
-        Component UpdateComponent(Component component);
+        Task<Component> UpdateComponent(Component component);
+        Task<bool> DeleteComponent(int id);
         Task<Component> GetComponentById(int id);
         Task<IEnumerable<Component>> GetAllComponents();
-        Task<bool> DeleteComponent(int id);
-        Drug InsertDrug(Drug drug);
-        Drug UpdateDrug(Drug drug);
-        void DeleteDrug(Drug drug);
-        Drug GetDrugById(int id);
+
+        Task<Drug> InsertDrug(Drug drug);
+        Task<Drug> UpdateDrug(Drug drug);
+        Task<bool> DeleteDrug(int id);
+        Task<Drug> GetDrugById(int id);
+        Task<IEnumerable<Drug>> GetAllDrugs();
 
 
     }

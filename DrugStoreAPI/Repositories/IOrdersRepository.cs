@@ -4,10 +4,13 @@ namespace DrugStoreAPI.Repositories
 {
     public interface IOrdersRepository
     {
-        Client InsertClient(Client client);
-        Order InsertOrder(Order order);
-        Order GetOrderById(int id);
-        Order UpdateOrder(Order order);
-        Client GetClientById(int id);
+        Task<Order> InsertOrder(Order order);
+        Task<Order> UpdateOrder(Order order);
+        Task<Order> GetOrderById(int id);
+        Task<IEnumerable<Order>> GetAllOrders();
+        
+        Task<Client> InsertClient(Client client);
+        Task<Client> GetClientById(int id);
+        Task<IEnumerable<Client>> GetAllClients();
     }
 }

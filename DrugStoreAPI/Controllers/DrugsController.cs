@@ -16,24 +16,41 @@ namespace DrugStoreAPI.Controllers
         }
 
         [HttpPost]
-        public DrugDTO Add(DrugDTO dto)
+        public async Task<IActionResult> Add(DrugDTO dto)
         {
-            return medicamentService.AddDrug(dto);
+            var drug = await medicamentService.AddDrug(dto);
+
+            return Ok(drug);
         }
+
         [HttpPost]
-        public DrugDTO Update(DrugDTO dto)
+        public async Task<IActionResult> Update(DrugDTO dto)
         {
-            return medicamentService.UpdateDrug(dto);
+            var updatedDrug = await medicamentService.UpdateDrug(dto);
+
+            return Ok(updatedDrug);
         }
-        [HttpDelete]
-        public void Delete(DrugDTO dto) 
+
+        [HttpDelete("{id}")]
+        public async Task<bool> Delete(int id) 
         {
-            medicamentService.DeleteDrug(dto);
+            return await medicamentService.DeleteDrug(id);
         }
+        
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var drug = await medicamentService.GetDrugById(id);
+
+            return Ok(drug);
+        }
+
         [HttpGet]
-        public DrugDTO GetDrugs()
+        public async Task<IActionResult> GetAllDrugs()
         {
-            return medicamentService.GetDrugs();
+            var drugs = await medicamentService.GetAllDrugs();
+
+            return Ok(drugs);
         }
 
     }

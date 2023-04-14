@@ -19,43 +19,80 @@ namespace DrugStoreAPI.Services
         
         public async Task<ComponentDTO> AddComponent(ComponentDTO dto)
         {
-            var mapper = new MedicamentsMapper();
-            
             var currentComponents = await GetAllComponents();
 
             foreach(var currentComponent in currentComponents)
             {
                 if(currentComponent.Name == dto.Name)
                 {
-                    throw new BadRequestException($"Компонента с таким именем: {dto.Name} уже существует");
+                    throw new DuplicateComponentException($"Component with such name: \"{dto.Name}\" is already exists!");
                 }
             }
 
-            var result = await medicamentsRepository.InsertComponent(mapper.ComponentDTOtoComponent(dto));
+            var mapper = new MedicamentsMapper();
 
-            return mapper.ComponentToComponentDTO(result);
+            var insertedComponent = await medicamentsRepository.InsertComponent(mapper.ComponentDTOtoComponent(dto));
+
+            return mapper.ComponentToComponentDTO(insertedComponent);
         }
 
-        public Task<ComponentDTO> UpdateComponent(ComponentDTO dto)
+        public async Task<ComponentDTO> UpdateComponent(ComponentDTO dto)
         {
-            throw new NotImplementedException();
+            var currentComponent = medicamentsRepository.GetComponentById(dto.Id);
+
+            if(currentComponent == null)
+            {
+                throw new ComponentNotFoundException($"Component with such id: \"{dto.Id}\" do not exists!");
+            }
+
+            var mapper = new MedicamentsMapper();
+
+            var updatedOrder = await medicamentsRepository.UpdateComponent(mapper.ComponentDTOtoComponent(dto));
+
+            return mapper.ComponentToComponentDTO(updatedOrder);
         }
 
         public async Task<bool> DeleteComponent(int id)
         {
             var deleteResult = await medicamentsRepository.DeleteComponent(id);
 
+            if(deleteResult == false)
+            {
+                throw new ComponentNotFoundException($"Component with such id: \"{id}\" do not exists!");
+            }
+
             return deleteResult;
+        }
+
+        public async Task<ComponentDTO> GetComponentById(int id)
+        {
+            var component = await medicamentsRepository.GetComponentById(id);
+
+            if(component == null)
+            {
+                throw new ComponentNotFoundException($"Component with such id: \"{id}\" do not exist!");
+            }
+
+            var mapper = new MedicamentsMapper();
+            
+            return mapper.ComponentToComponentDTO(component);
+
         }
 
         public async Task<IEnumerable<ComponentDTO>> GetAllComponents()
         {
+            var currentComponents = await medicamentsRepository.GetAllComponents();
+
+            if(currentComponents == null)
+            {
+                throw new ComponentNotFoundException("There are no components!");
+            }
+
             var mapper = new MedicamentsMapper();
-
-            var gotComponents = await medicamentsRepository.GetAllComponents();
-
+            
             var components = new List<ComponentDTO>();
-            foreach(var component in gotComponents)
+            
+            foreach(var component in currentComponents)
             {
                 components.Add(mapper.ComponentToComponentDTO(component));
             }
@@ -63,49 +100,132 @@ namespace DrugStoreAPI.Services
             return components;
         }
 
-        public DrugDTO AddDrug(DrugDTO dto)
+        public async Task<DrugDTO> AddDrug(DrugDTO dto)
         {
-            MedicamentsMapper mapper = new();
+            var currentDrugs = await GetAllDrugs();
 
-            Drug drug = mapper.DrugDTOtoDrug(dto);
+            foreach(var currentDrug in currentDrugs)
+            {
+                if(dto.Name == currentDrug.Name)
+                {
+                    throw new DuplicateDrugException($"Drug with such name: \"{dto.Name}\" is already exists!");
+                }
+            }
 
-            List<DrugsComponents> drugsComponents = GetDrugsComponents(drug, dto.Components);
+            foreach (var drugComponentDTO in dto.Components)
+            {
+                if (await medicamentsRepository.GetComponentById(drugComponentDTO.Component.Id) == null)
+                {
+                    throw new DrugNotFoundException($"Component with such id: \"{drugComponentDTO.Component.Id}\" do not exists!");
+                }
+            }
 
+            var mapper = new MedicamentsMapper();
+            var drug = mapper.DrugDTOtoDrug(dto);
+
+            var drugsComponents = await GetDrugsComponents(drug, dto.Components);
             drug.DrugsComponents = drugsComponents;
 
-            drug = medicamentsRepository.InsertDrug(drug);
+            drug = await medicamentsRepository.InsertDrug(drug);
 
             return mapper.DrugToDrugDTO(drug);
         }
 
-        public DrugDTO UpdateDrug(DrugDTO dto)
+        public async Task<DrugDTO> UpdateDrug(DrugDTO dto)
         {
-            MedicamentsMapper mapper = new();
+            var currentDrug = await medicamentsRepository.GetDrugById(dto.Id);
+            
+            if(currentDrug == null)
+            {
+                throw new DrugNotFoundException($"Drug with such id: \"{dto.Id}\" do not exists!");
+            }
+            
+            foreach(var drugComponentDTO in dto.Components)
+            {
+                if (await medicamentsRepository.GetComponentById(drugComponentDTO.Component.Id) == null)
+                {
+                    throw new DrugNotFoundException($"Component with such id: \"{drugComponentDTO.Component.Id}\" do not exists!");
+                }
+            }
 
-            Drug updatedDrug = mapper.DrugDTOtoDrug(dto);
+            var mapper = new MedicamentsMapper();
 
-            return mapper.DrugToDrugDTO(medicamentsRepository.UpdateDrug(updatedDrug));
+            var updatedDrug = mapper.DrugDTOtoDrug(dto);
+
+            var drugsComponents = await GetDrugsComponents(updatedDrug, dto.Components);
+
+            updatedDrug.DrugsComponents = drugsComponents;
+
+            updatedDrug = await medicamentsRepository.UpdateDrug(updatedDrug);
+
+            return mapper.DrugToDrugDTO(updatedDrug);
         }
 
-        public void DeleteDrug(DrugDTO dto)
+        public async Task<bool> DeleteDrug(int id)
         {
-            MedicamentsMapper mapper = new();
+            var deleteResult = await medicamentsRepository.DeleteDrug(id);
 
-            medicamentsRepository.DeleteDrug(mapper.DrugDTOtoDrug(dto));
-        }
-        public DrugDTO GetDrugs()
-        {
-            MedicamentsMapper mapper = new();
-            return mapper.DrugToDrugDTO(medicamentsRepository.GetDrugById(1));
-        }
-        /*private Component GetComponent(ComponentDTO dto)
-        {
-            return medicamentsRepository.GetComponentById(dto.Id);
-        }*/
+            if (deleteResult == false)
+            {
+                throw new DrugNotFoundException($"Drug with such id: \"{id}\" do not exists!");
+            }
 
-        private List<DrugsComponents> GetDrugsComponents(Drug drug, List<DrugComponentDTO> drugComponentDTOs)
+            return deleteResult;
+        }
+        public async Task<DrugDTO> GetDrugById(int id)
         {
-            throw new NotImplementedException();
+            var drug = await medicamentsRepository.GetDrugById(id);
+
+            if(drug == null)
+            {
+                throw new DrugNotFoundException($"Drug with such id: \"{id}\" do not exists!");
+            }
+
+            var mapper = new MedicamentsMapper();
+
+            return mapper.DrugToDrugDTO(drug);
+        }
+        
+        public async Task<IEnumerable<DrugDTO>> GetAllDrugs()
+        {
+            var currentDrugs = await medicamentsRepository.GetAllDrugs();
+
+            if (currentDrugs == null)
+            {
+                throw new DrugNotFoundException("There are no drugs!");
+            }
+
+            var mapper = new MedicamentsMapper();
+
+            var drugs = new List<DrugDTO>();
+            foreach (var drug in currentDrugs)
+            {
+                drugs.Add(mapper.DrugToDrugDTO(drug));
+            }
+
+            return drugs;
+        }
+
+        public async Task<ICollection<DrugsComponents>> GetDrugsComponents(Drug drug, List<DrugComponentDTO> drugComponentDTOs)
+        {
+            var mapper = new MedicamentsMapper();
+
+            var drugsComponents = new List<DrugsComponents>();
+            foreach(var drugComponentDTO  in drugComponentDTOs)
+            {
+                var component = await medicamentsRepository.GetComponentById(mapper.ComponentDTOtoComponent(drugComponentDTO.Component).Id);
+
+                drugsComponents.Add(new DrugsComponents()
+                {
+                    Drug = drug,
+                    DrugId = drug.Id,
+                    Component = component,
+                    ComponentId = component.Id,
+                    Amount = drugComponentDTO.Amount
+                });
+            }
+
+            return drugsComponents; 
         }
     }
 }
