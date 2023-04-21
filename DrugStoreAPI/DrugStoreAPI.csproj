@@ -7,9 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Data\" />
-    <Folder Include="DTOs\ExceptionsDTOs\" />
-    <Folder Include="Validators\" />
+    <Folder Include="src\Data\" />
+    <Folder Include="src\Validators\" />
   </ItemGroup>
 
   <ItemGroup>

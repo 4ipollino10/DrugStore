@@ -1,7 +1,9 @@
-using DrugStoreAPI.Configuration;
-using DrugStoreAPI.Data;
+using DrugStoreAPI.src.Configuration;
+using DrugStoreAPI.src.Repositories;
+using DrugStoreAPI.src.Services;
 using DrugStoreAPI.Repositories;
 using DrugStoreAPI.Services;
+using DrugStoreAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
