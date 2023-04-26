@@ -16,6 +16,7 @@ namespace DrugStoreAPI.src.Repositories
         Task<IEnumerable<GetDrugAndComponentsPriceDTO>> FindDrugAndComponentsPrices(int id);
         Task<IEnumerable<Component>> GetTopUsefulComponetsByTypeIs(MedicamentType type);
         Task<IEnumerable<Drug>> GetDrugsByMinimalAmountAndTypeIs(MedicamentType type);
+        Task<IEnumerable<int>> GetUsedAmountComponentForPeriodAndTypeIs(DateTime from, DateTime to, string name);
 
         Task<Drug> InsertDrug(Drug drug);
         Task<Drug> UpdateDrug(Drug drug);

@@ -73,7 +73,7 @@ namespace DrugStoreAPI.src.Controllers
         [HttpPost]
         public async Task<IActionResult> GetUsedAmounComponentForPeriod(ComponentAmountUsedReportDTO dto)
         {
-            var amount = await medicamentService.GetUsedAmounComponentForPeriod(dto);
+            var amount = await medicamentService.GetUsedAmountComponentForPeriod(dto);
 
             return Ok(amount);
         }

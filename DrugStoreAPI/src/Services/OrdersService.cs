@@ -37,6 +37,7 @@ namespace DrugStoreAPI.src.Services
             order.Client = client;
             order.ClientId = client.Id;
             order.OrdersDrugs = await GetOrdersDrugs(order, dto);
+            order.UsedComponents = true;
 
             await SetMedicationReadiness(dto.Drugs);
 
@@ -45,6 +46,7 @@ namespace DrugStoreAPI.src.Services
                 order.OrderStatus = Utils.OrderStatus.COMPLETED;
                 order.AppointedDate = order.OrderDate;
                 order.ReceivingDate = order.OrderDate;
+                order.UsedComponents = false;
             }
             else if (IsEnoughComponents(dto.Drugs))
             {

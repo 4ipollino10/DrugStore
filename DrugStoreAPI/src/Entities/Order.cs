@@ -11,6 +11,7 @@ namespace DrugStoreAPI.Entities
         public DateTime AppointedDate { get; set; }
         public DateTime ReceivingDate { get; set; }
         public OrderStatus OrderStatus { get; set; }
+        public bool UsedComponents { get; set; }
         public int ClientId { get; set; }
         public virtual Client Client { get; set; }
         public virtual ICollection<OrdersDrugs> OrdersDrugs { get; set; } = new List<OrdersDrugs>();

@@ -315,5 +315,23 @@ namespace DrugStoreAPI.src.Services
 
             return drugs;
         }
+
+        public async Task<ComponentAmountDTO> GetUsedAmountComponentForPeriod(ComponentAmountUsedReportDTO dto)
+        {
+            var result = await medicamentsRepository.GetUsedAmountComponentForPeriodAndTypeIs(dto.From, dto.To, dto.Name);
+
+            var amount = 0;
+            foreach(var componentsAmount in result)
+            {
+                amount += amount;
+            }
+
+            var componentAmount = new ComponentAmountDTO()
+            {
+                Amount = amount
+            };
+
+            return componentAmount;
+        }
     }
 }

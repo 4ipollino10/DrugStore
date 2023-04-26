@@ -3,6 +3,7 @@ using DrugStoreAPI.Data;
 using DrugStoreAPI.src.Utils;
 using Microsoft.EntityFrameworkCore;
 using DrugStoreAPI.src.DTOs.QueriesDTOs;
+using System.Runtime.CompilerServices;
 
 namespace DrugStoreAPI.src.Repositories
 {
@@ -184,5 +185,27 @@ namespace DrugStoreAPI.src.Repositories
                          select drugs;
             return await result.ToListAsync();
         }
+
+        public async Task<IEnumerable<int>> GetUsedAmountComponentForPeriodAndTypeIs(DateTime @from, DateTime to, string componentName)
+        {
+            var result = from orders in applicationDbContext.Orders
+                         join ordersDrugs in applicationDbContext.OrdersDrugs
+                             on orders.Id equals ordersDrugs.OrderId
+                         join drugs in applicationDbContext.Drugs
+                             on ordersDrugs.DrugId equals drugs.Id
+                         join drugsComponents in applicationDbContext.DrugsComponents
+                             on drugs.Id equals drugsComponents.DrugId
+                         join components in applicationDbContext.Components
+                             on drugsComponents.ComponentId equals components.Id
+                         where 
+                         orders.OrderStatus == OrderStatus.COMPLETED 
+                         && orders.UsedComponents 
+                         && components.Name == componentName 
+                         && (orders.OrderDate >= @from && orders.OrderDate <= to)
+                         select drugsComponents.Amount;
+
+            return await result.ToListAsync();
+        }
+
     }
 }

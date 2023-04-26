@@ -14,7 +14,7 @@ namespace DrugStoreAPI.Services
         Task<IEnumerable<ComponentDTO>> GetAllComponents();
         Task<IEnumerable<ComponentDTO>> GetComponentsByCriticalAmount();
         Task<IEnumerable<ComponentDTO>> GetTopUsefulComponets(MedicamentTypeDTO dto);
-        Task<>
+        Task<ComponentAmountDTO> GetUsedAmountComponentForPeriod(ComponentAmountUsedReportDTO dto);
 
         Task<DrugDTO> AddDrug(DrugDTO dto);
         Task<DrugDTO> UpdateDrug(DrugDTO dto);

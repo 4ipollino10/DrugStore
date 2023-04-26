@@ -2,6 +2,6 @@
 {
     public class ComponentAmountDTO
     {
-
+        public int Amount { get; set; }
     }
 }

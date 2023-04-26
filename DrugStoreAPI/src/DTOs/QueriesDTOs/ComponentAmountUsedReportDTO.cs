@@ -6,6 +6,6 @@ namespace DrugStoreAPI.src.DTOs.QueriesDTOs
     {
         public DateTime From { get; set; }
         public DateTime To { get; set; }
-        public MedicamentType Type { get; set; }
+        public string Name { get; set; }
     }
 }
