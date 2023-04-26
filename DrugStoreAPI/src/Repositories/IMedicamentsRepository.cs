@@ -12,15 +12,18 @@ namespace DrugStoreAPI.src.Repositories
         Task<Component> FindComponentById(int id);
         Component FindComponentByNameIsAndTypeIs(string name, MedicamentType type);
         Task<IEnumerable<Component>> GetAllComponents();
-        IQueryable<Component> FindComponentsByCriticalAmount();
-        IQueryable<GetDrugAndComponentsPriceDTO> FindDrugAndComponentsPrices(int id);
+        Task<IEnumerable<Component>> FindComponentsByCriticalAmount();
+        Task<IEnumerable<GetDrugAndComponentsPriceDTO>> FindDrugAndComponentsPrices(int id);
+        Task<IEnumerable<Component>> GetTopUsefulComponetsByTypeIs(MedicamentType type);
+        Task<IEnumerable<Drug>> GetDrugsByMinimalAmountAndTypeIs(MedicamentType type);
 
         Task<Drug> InsertDrug(Drug drug);
         Task<Drug> UpdateDrug(Drug drug);
         Task<bool> DeleteDrug(int id);
         Task<Drug> FindDrugById(int id);
-        Drug FindDrugByNameIsAndTypeIs(string name, MedicamentType type);
+        Task<Drug> FindDrugByNameIsAndTypeIs(string name, MedicamentType type);
         Task<IEnumerable<Drug>> GetAllDrugs();
+        Task<IEnumerable<Drug>> FindDrugsByOrderStatusInProgress();
 
 
     }

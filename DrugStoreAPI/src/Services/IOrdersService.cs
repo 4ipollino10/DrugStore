@@ -9,7 +9,7 @@ namespace DrugStoreAPI.Services
         Task<OrderDTO> AddOrder(OrderDTO dto);
         Task<OrderDTO> GetOrderById(int id);
         Task<IEnumerable<OrderDTO>> GetAllOrders();
-        IEnumerable<OrderDTO> GetOrderByType(OrderStatus type);
+        Task<IEnumerable<OrderDTO>> GetOrderByStatus(OrderStatusDTO dto);
 
         Task<OrderDTO> MakeOrder(OrderDTO dto);
         Task<OrderDTO> StockComponents(OrderDTO dto);
@@ -17,7 +17,8 @@ namespace DrugStoreAPI.Services
 
         Task<ClientDTO> GetClientById(int id);
         Task<IEnumerable<ClientDTO>> GetAllClients();
-        IEnumerable<ClientDTO> GetClientsByOverduedOrders();
-        IEnumerable<ClientDTO> GetClientsByMedicaments(GetClientsByMedicamentsDTO dto);
+        Task<IEnumerable<ClientDTO>> GetClientsByOverduedOrders();
+        Task<IEnumerable<ClientDTO>> GetClientsByMedicaments(GetClientsByMedicamentsDTO dto);
+        Task<IEnumerable<ClientDTO>> GetClientsByDelayedOrders(GetClientsByMedicamentsDTO dto);
     };
 }

@@ -38,7 +38,7 @@ namespace DrugStoreAPI.src.Services
             order.ClientId = client.Id;
             order.OrdersDrugs = await GetOrdersDrugs(order, dto);
 
-            SetMedicationReadiness(dto.Drugs);
+            await SetMedicationReadiness(dto.Drugs);
 
             if (IsEnoughDrugs(dto.Drugs))
             {
@@ -61,7 +61,7 @@ namespace DrugStoreAPI.src.Services
 
             var insertedOrder = await ordersRepository.InsertOrder(order);
             var insertedOrderDTO = mapper.OrderToOrderDTO(insertedOrder);
-            SetMedicationReadiness(insertedOrderDTO.Drugs);
+            await SetMedicationReadiness(insertedOrderDTO.Drugs);
 
             return insertedOrderDTO;
         }
@@ -135,9 +135,9 @@ namespace DrugStoreAPI.src.Services
             return clients;
         }
 
-        public IEnumerable<ClientDTO> GetClientsByOverduedOrders()
+        public async Task<IEnumerable<ClientDTO>> GetClientsByOverduedOrders()
         {
-            var currentClients = ordersRepository.FindClientsByOverduedOrders();
+            var currentClients = await ordersRepository.FindClientsByOverduedOrders();
             
             var ordersMapper = new OrdersMapper();
             var clients = new List<ClientDTO>();
@@ -165,7 +165,7 @@ namespace DrugStoreAPI.src.Services
 
             var ordersMapper = new OrdersMapper();
 
-            SetMedicationReadiness(orderDTO.Drugs);
+            await SetMedicationReadiness(orderDTO.Drugs);
 
             foreach (var drugOrderDTO in orderDTO.Drugs)
             {
@@ -225,7 +225,7 @@ namespace DrugStoreAPI.src.Services
 
             var mapper = new OrdersMapper();
 
-            SetMedicationReadiness(orderDTO.Drugs);
+            await SetMedicationReadiness(orderDTO.Drugs);
 
             foreach (var drugOrderDTO in orderDTO.Drugs)
             {
@@ -335,16 +335,18 @@ namespace DrugStoreAPI.src.Services
             return ordersDrugs;
         }
 
-        private void SetMedicationReadiness(List<DrugOrderDTO> drugOrderDTOs)
+        private async Task<bool> SetMedicationReadiness(List<DrugOrderDTO> drugOrderDTOs)
         {
             foreach (var drugOrderDTO in drugOrderDTOs)
             {
-                SetDrugReadiness(drugOrderDTO);
-                SetComponentsReadiness(drugOrderDTO);
+                await SetDrugReadiness(drugOrderDTO);
+                await SetComponentsReadiness(drugOrderDTO);
             }
+
+            return true;
         }
 
-        private async void SetComponentsReadiness(DrugOrderDTO dto)
+        private async Task<bool> SetComponentsReadiness(DrugOrderDTO dto)
         {
             foreach (var drugComponentDTO in dto.Drug.Components)
             {
@@ -358,10 +360,12 @@ namespace DrugStoreAPI.src.Services
                 {
                     drugComponentDTO.IsReady = false;
                 }
+                
             }
+            return true;
         }
 
-        private async void SetDrugReadiness(DrugOrderDTO dto)
+        private async Task<bool> SetDrugReadiness(DrugOrderDTO dto)
         {
             var drug = await medicamentsRepository.FindDrugById(dto.Drug.Id);
 
@@ -369,6 +373,8 @@ namespace DrugStoreAPI.src.Services
             {
                 dto.IsEnough = true;
             }
+
+            return true;
         }
 
         private bool IsEnoughComponents(List<DrugOrderDTO> drugOrderDTOs)
@@ -377,13 +383,13 @@ namespace DrugStoreAPI.src.Services
             {
                 foreach (var drugComponentDTO in drugOrderDTO.Drug.Components)
                 {
+                    Console.WriteLine(drugComponentDTO.IsReady);
                     if (!drugComponentDTO.IsReady)
                     {
                         return false;
                     }
                 }
             }
-
             return true;
         }
 
@@ -400,9 +406,9 @@ namespace DrugStoreAPI.src.Services
             return true;
         }
 
-        public IEnumerable<OrderDTO> GetOrderByType(OrderStatus type)
+        public async Task<IEnumerable<OrderDTO>> GetOrderByStatus(OrderStatusDTO dto)
         {
-            var result = ordersRepository.FindOrderByTypeIs(type);
+            var result = await ordersRepository.FindOrderByTypeIs(dto.status);
 
             var ordersMapper = new OrdersMapper();
             var orders = new List<OrderDTO>();
@@ -415,14 +421,29 @@ namespace DrugStoreAPI.src.Services
             return orders;
         }
 
-        public IEnumerable<ClientDTO> GetClientsByMedicaments(GetClientsByMedicamentsDTO dto)
+        public async Task<IEnumerable<ClientDTO>> GetClientsByMedicaments(GetClientsByMedicamentsDTO dto)
         {
-            var result = ordersRepository.FindClientsByMedicamentNameIsOrTypeIs(dto.DrugName, dto.MedicamentType);
+            var result = await ordersRepository.FindClientsByMedicamentNameIsOrTypeIs(dto.MedicamentName, dto.MedicamentType);
 
             var ordersMapper = new OrdersMapper();
             var clients = new List<ClientDTO>();
 
             foreach (var client in result)
+            {
+                clients.Add(ordersMapper.ClientToClientDTO(client));
+            }
+
+            return clients;
+        }
+
+        public async Task<IEnumerable<ClientDTO>> GetClientsByDelayedOrders(GetClientsByMedicamentsDTO dto)
+        {
+            var result = await ordersRepository.FindClientsByOrderStatusDelayedMedicamentNameIsTypeIs(dto.MedicamentName, dto.MedicamentType);
+
+            var ordersMapper = new OrdersMapper();
+            var clients = new List<ClientDTO>();
+
+            foreach(var client in result)
             {
                 clients.Add(ordersMapper.ClientToClientDTO(client));
             }

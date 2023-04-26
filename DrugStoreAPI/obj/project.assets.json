@@ -2918,19 +2918,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\enemy\\.nuget\\packages\\": {}
+    "C:\\Users\\Timur\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\work\\DrugStore\\DrugStore\\DrugStoreAPI\\DrugStoreAPI.csproj",
+      "projectUniqueName": "C:\\work\\DrugStore\\DrugStore\\DrugStoreAPI\\DrugStoreAPI.csproj",
       "projectName": "DrugStoreAPI",
-      "projectPath": "D:\\work\\DrugStore\\DrugStore\\DrugStoreAPI\\DrugStoreAPI.csproj",
-      "packagesPath": "C:\\Users\\enemy\\.nuget\\packages\\",
-      "outputPath": "D:\\work\\DrugStore\\DrugStore\\DrugStoreAPI\\obj\\",
+      "projectPath": "C:\\work\\DrugStore\\DrugStore\\DrugStoreAPI\\DrugStoreAPI.csproj",
+      "packagesPath": "C:\\Users\\Timur\\.nuget\\packages\\",
+      "outputPath": "C:\\work\\DrugStore\\DrugStore\\DrugStoreAPI\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\enemy\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Timur\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -2988,7 +2988,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.202\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.203\\RuntimeIdentifierGraph.json"
       }
     }
   }

@@ -1,6 +1,7 @@
 ﻿using DrugStoreAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using DrugStoreAPI.DTOs.MedicamentDTOs;
+using DrugStoreAPI.src.DTOs.QueriesDTOs;
 
 namespace DrugStoreAPI.src.Controllers
 {
@@ -54,11 +55,27 @@ namespace DrugStoreAPI.src.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetComponentsByCriticalAmount()
+        public async Task<IActionResult> GetComponentsByCriticalAmount()
         {
-            var components = medicamentService.GetComponentsByCriticalAmount();
+            var components = await medicamentService.GetComponentsByCriticalAmount();
 
             return Ok(components);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetTopUsefulComponents(MedicamentTypeDTO dto)
+        {
+            var components = await medicamentService.GetTopUsefulComponets(dto);
+
+            return Ok(components);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetUsedAmounComponentForPeriod(ComponentAmountUsedReportDTO dto)
+        {
+            var amount = await medicamentService.GetUsedAmounComponentForPeriod(dto);
+
+            return Ok(amount);
         }
 
     }

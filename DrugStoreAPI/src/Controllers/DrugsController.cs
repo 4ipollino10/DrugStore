@@ -1,5 +1,8 @@
 ﻿using DrugStoreAPI.DTOs.MedicamentDTOs;
+using DrugStoreAPI.DTOs.OrderDTOs;
 using DrugStoreAPI.Services;
+using DrugStoreAPI.src.DTOs.QueriesDTOs;
+using DrugStoreAPI.src.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DrugStoreAPI.src.Controllers
@@ -57,6 +60,22 @@ namespace DrugStoreAPI.src.Controllers
         public IActionResult GetDrugAndComponentsPrices(int id)
         {
             var result = medicamentService.GetDrugAndComponentsPrices(id);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        public IActionResult GetDrugsInOrdersInProgress()
+        {
+            var result = medicamentService.GetDrugsInOrdersInProgress();
+
+            return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetDrugsByMinimalAmount(MedicamentTypeDTO dto)
+        {
+            var result = await medicamentService.GetDrugsByMinimalAmount(dto);
 
             return Ok(result);
         }

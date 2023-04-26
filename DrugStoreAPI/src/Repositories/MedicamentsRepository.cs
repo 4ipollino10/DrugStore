@@ -51,7 +51,7 @@ namespace DrugStoreAPI.src.Repositories
 
         public async Task<Component> FindComponentById(int id)
         {
-            return await applicationDbContext.Components.FindAsync(id);
+            return applicationDbContext.Components.FindAsync(id).Result;
         }
         public Component FindComponentByNameIsAndTypeIs(string name, MedicamentType type)
         {
@@ -110,11 +110,11 @@ namespace DrugStoreAPI.src.Repositories
             return await applicationDbContext.Drugs.FindAsync(id);
         }
 
-        public Drug FindDrugByNameIsAndTypeIs(string name, MedicamentType type)
+        public async Task<Drug> FindDrugByNameIsAndTypeIs(string name, MedicamentType type)
         {
-            var drug  = applicationDbContext.Drugs.Where(d => d.Name == name && d.Type == type);
+            var drug = applicationDbContext.Drugs.Where(d => d.Name == name && d.Type == type);
 
-            return drug.FirstOrDefault();
+            return await drug.FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<Drug>> GetAllDrugs()
@@ -122,15 +122,15 @@ namespace DrugStoreAPI.src.Repositories
             return await applicationDbContext.Drugs.ToListAsync();
         }
 
-        public IQueryable<Component> FindComponentsByCriticalAmount()
+        public async Task<IEnumerable<Component>> FindComponentsByCriticalAmount()
         {
             var result = from component in applicationDbContext.Components
                          where component.Amount <= component.CriticalAmount
                          select component;
-            return result;
+            return await result.ToListAsync();
         }
 
-        public IQueryable<GetDrugAndComponentsPriceDTO> FindDrugAndComponentsPrices(int id)
+        public async Task<IEnumerable<GetDrugAndComponentsPriceDTO>> FindDrugAndComponentsPrices(int id)
         {
             var result = from drug in applicationDbContext.Drugs
                             join drugsComponents in applicationDbContext.DrugsComponents
@@ -144,7 +144,45 @@ namespace DrugStoreAPI.src.Repositories
                              ComponentPrice = component.Price, 
                              ComponentAmount = component.Amount 
                          };
-            return result;     
+            return await result.ToListAsync();     
+        }
+
+        public async Task<IEnumerable<Drug>> FindDrugsByOrderStatusInProgress()
+        {
+            var result = from drugs in applicationDbContext.Drugs
+                         join ordersDrugs in applicationDbContext.OrdersDrugs
+                             on drugs.Id equals ordersDrugs.DrugId
+                         join orders in applicationDbContext.Orders
+                             on ordersDrugs.OrderId equals orders.Id
+                         where orders.OrderStatus == OrderStatus.IN_PROGRESS
+                         select drugs;
+            return await result.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Component>> GetTopUsefulComponetsByTypeIs(MedicamentType type)
+        {
+            var result = from orders in applicationDbContext.Orders
+                         join ordersDrugs in applicationDbContext.OrdersDrugs
+                             on orders.Id equals ordersDrugs.OrderId
+                         join drugs in applicationDbContext.Drugs
+                             on ordersDrugs.DrugId equals drugs.Id
+                         join drugsComponents in applicationDbContext.DrugsComponents
+                             on drugs.Id equals drugsComponents.DrugId
+                         join components in applicationDbContext.Components
+                             on drugsComponents.ComponentId equals components.Id
+                         where type == MedicamentType.ANY || components.Type == type
+                         select components;
+
+            return await result.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Drug>> GetDrugsByMinimalAmountAndTypeIs(MedicamentType type)
+        {
+            var result = from drugs in applicationDbContext.Drugs
+                         where type == MedicamentType.ANY || drugs.Type == type
+                         orderby drugs.Amount
+                         select drugs;
+            return await result.ToListAsync();
         }
     }
 }

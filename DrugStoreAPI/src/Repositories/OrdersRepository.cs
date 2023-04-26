@@ -35,7 +35,7 @@ namespace DrugStoreAPI.Repositories
             return await applicationDbContext.Clients.ToListAsync();
         }
 
-        public IQueryable<Client> FindClientsByOverduedOrders()
+        public async Task<IEnumerable<Client>> FindClientsByOverduedOrders()
         {
             var clients = from client in applicationDbContext.Clients
                         join order in applicationDbContext.Orders
@@ -43,7 +43,7 @@ namespace DrugStoreAPI.Repositories
                    where order.ReceivingDate > order.AppointedDate 
                         select client;
 
-            return clients;
+            return await clients.ToListAsync();
         }
 
         public async Task<Order> InsertOrder(Order order)
@@ -83,17 +83,15 @@ namespace DrugStoreAPI.Repositories
             return currentOrder;
         }
 
-        public IEnumerable<Order> FindOrderByTypeIs(OrderStatus type)
+        public async Task<IEnumerable<Order>> FindOrderByTypeIs(OrderStatus type)
         {
-            var result = applicationDbContext.Orders.Where(o => o.OrderStatus == type).ToList();
+            var result = applicationDbContext.Orders.Where(o => o.OrderStatus == type);
             
-            return result;
+            return await result.ToListAsync();
         }
 
-        public IQueryable<Client> FindClientsByMedicamentNameIsOrTypeIs(string drugName, IEnumerable<MedicamentType> type)
+        public async Task<IEnumerable<Client>> FindClientsByMedicamentNameIsOrTypeIs(string drugName, MedicamentType type)
         {
-
-
             var result = from c in applicationDbContext.Clients
                             join orders in applicationDbContext.Orders
                                 on c.Id equals orders.ClientId
@@ -101,10 +99,29 @@ namespace DrugStoreAPI.Repositories
                                 on orders.Id equals ordersDrugs.OrderId
                             join drugs in applicationDbContext.Drugs
                                 on ordersDrugs.DrugId equals drugs.Id
-                            where drugs.Name == drugName && (type == MedicamentType.ANY || drugs.Type == type | )
+                            where drugs.Name == drugName && (type == MedicamentType.ANY || drugs.Type == type) 
                          select c;
 
-            return result.Distinct();
+            return await result.Distinct().ToListAsync();
+        }
+
+        public async Task<IEnumerable<Client>> FindClientsByOrderStatusDelayedMedicamentNameIsTypeIs(string medicamentName, MedicamentType type)
+        {
+            var result = from clients in applicationDbContext.Clients
+                         join orders in applicationDbContext.Orders
+                             on clients.Id equals orders.ClientId
+                         join ordersDrugs in applicationDbContext.OrdersDrugs
+                             on orders.Id equals ordersDrugs.OrderId
+                         join drugs in applicationDbContext.Drugs
+                             on ordersDrugs.DrugId equals drugs.Id
+                         join drugsComponents in applicationDbContext.DrugsComponents
+                             on drugs.Id equals drugsComponents.DrugId
+                         join components in applicationDbContext.Components
+                             on drugsComponents.ComponentId equals components.Id
+                         where components.Name == medicamentName && type == MedicamentType.ANY || components.Type == type
+                         select clients;
+            
+            return await result.Distinct().ToListAsync();
         }
     }
 }

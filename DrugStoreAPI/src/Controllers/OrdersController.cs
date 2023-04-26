@@ -84,28 +84,36 @@ namespace DrugStoreAPI.src.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetClientsByOverduedOrders()
+        public async Task<IActionResult> GetClientsByOverduedOrders()
         {
-            var clients = orderService.GetClientsByOverduedOrders();
+            var clients = await orderService.GetClientsByOverduedOrders();
 
             return Ok(clients);
         }
 
-        [HttpGet("{type}")]
-        public IActionResult GetOrdersByType(OrderStatus type)
+        [HttpPost]
+        public async Task<IActionResult> GetOrdersByStatus(OrderStatusDTO dto)
         {
-            var orders = orderService.GetOrderByType(type);
+            var orders = await orderService.GetOrderByStatus(dto);
 
             return Ok(orders);
         }
 
-        [HttpGet]
-        public IActionResult GetClientsByMedicaments([FromBody] GetClientsByMedicamentsDTO dto) 
+        [HttpPost]
+        public async Task<IActionResult> GetClientsByMedicaments(GetClientsByMedicamentsDTO dto) 
         {
-            var clients = orderService.GetClientsByMedicaments(dto);
+            var clients = await orderService.GetClientsByMedicaments(dto);
 
             return Ok(clients);
 
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetClientsByDelayedOrders(GetClientsByMedicamentsDTO dto)
+        {
+            var result = await orderService.GetClientsByDelayedOrders(dto);
+
+            return Ok(result);
         }
 
     }

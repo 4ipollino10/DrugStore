@@ -108,7 +108,7 @@ namespace DrugStoreAPI.src.Services
             var medicamentsMapper = new MedicamentsMapper();
             var drug = medicamentsMapper.DrugDTOtoDrug(dto);
 
-            var result = IsDrugHasDuplicates(drug);
+            var result = await IsDrugHasDuplicates(drug);
             if (!result)
             {
                 throw new DuplicateDrugException($"Drug with such name: '{dto.Name}' and type: '{dto.Type}' is already exists!");
@@ -130,9 +130,9 @@ namespace DrugStoreAPI.src.Services
             return medicamentsMapper.DrugToDrugDTO(drug);
         }
 
-        private bool IsDrugHasDuplicates(Drug drug)
+        private async Task<bool> IsDrugHasDuplicates(Drug drug)
         {
-            var result = medicamentsRepository.FindDrugByNameIsAndTypeIs(drug.Name, drug.Type);
+            var result = await medicamentsRepository.FindDrugByNameIsAndTypeIs(drug.Name, drug.Type);
 
             return result == null;
         }
@@ -233,9 +233,9 @@ namespace DrugStoreAPI.src.Services
             return drugsComponents;
         }
 
-        public IEnumerable<ComponentDTO> GetComponentsByCriticalAmount()
+        public async Task<IEnumerable<ComponentDTO>> GetComponentsByCriticalAmount()
         {
-            var result = medicamentsRepository.FindComponentsByCriticalAmount();
+            var result = await medicamentsRepository.FindComponentsByCriticalAmount();
 
             var medicamentsMapper = new MedicamentsMapper();
             var components = new List<ComponentDTO>();
@@ -248,14 +248,72 @@ namespace DrugStoreAPI.src.Services
             return components;
         }
 
-        public IQueryable<GetDrugAndComponentsPriceDTO> GetDrugAndComponentsPrices(int id)
+        public async Task<IEnumerable<GetDrugAndComponentsPriceDTO>> GetDrugAndComponentsPrices(int id)
         {
             
-            var result = medicamentsRepository.FindDrugAndComponentsPrices(id);
+            var result = await medicamentsRepository.FindDrugAndComponentsPrices(id);
             
             
             return result;
         
+        }
+
+        public async Task<IEnumerable<DrugDTO>> GetDrugsInOrdersInProgress()
+        {
+            var result = await medicamentsRepository.FindDrugsByOrderStatusInProgress();
+
+            var medicamentsMapper = new MedicamentsMapper();
+            var drugs = new List<DrugDTO>();
+            foreach(var drug in result)
+            {
+                drugs.Add(medicamentsMapper.DrugToDrugDTO(drug));
+            }
+
+            return drugs;
+        }
+
+        public async Task<IEnumerable<ComponentDTO>> GetTopUsefulComponets(MedicamentTypeDTO dto)
+        {
+            var result = await medicamentsRepository.GetTopUsefulComponetsByTypeIs(dto.Type);
+
+            var tmpMap = new Dictionary<Component, int>();
+
+            foreach(var componet in result)
+            {
+                if (tmpMap.ContainsKey(componet))
+                {
+                    tmpMap[componet]++;
+                    continue;
+                }
+
+                tmpMap.Add(componet, 1);
+            }
+
+            var sortedTmpMap = from entry in tmpMap orderby entry.Value descending select entry;
+
+            var medicametsMapper = new MedicamentsMapper();
+            var components = new List<ComponentDTO>();
+            foreach(var component in sortedTmpMap)
+            {
+                Console.WriteLine(component.Value);
+                components.Add(medicametsMapper.ComponentToComponentDTO(component.Key));
+            }
+                
+            return components;
+        }
+
+        public async Task<IEnumerable<DrugDTO>> GetDrugsByMinimalAmount(MedicamentTypeDTO dto)
+        {
+            var result = await medicamentsRepository.GetDrugsByMinimalAmountAndTypeIs(dto.Type);
+
+            var medicamentsMapper = new MedicamentsMapper();
+            var drugs = new List<DrugDTO>();
+            foreach (var drug in result)
+            {
+                drugs.Add(medicamentsMapper.DrugToDrugDTO(drug));
+            }
+
+            return drugs;
         }
     }
 }
