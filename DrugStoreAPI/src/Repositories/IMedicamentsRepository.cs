@@ -25,7 +25,7 @@ namespace DrugStoreAPI.src.Repositories
         Task<Drug> FindDrugByNameIsAndTypeIs(string name, MedicamentType type);
         Task<IEnumerable<Drug>> GetAllDrugs();
         Task<IEnumerable<Drug>> FindDrugsByOrderStatusInProgress();
-
+        Task<IEnumerable<string>> GetDrugsTechnologiesByNameIsAndTypeIs(string drugName, MedicamentType type, bool isInProggress);
 
     }
 }

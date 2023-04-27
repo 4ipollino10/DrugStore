@@ -333,5 +333,21 @@ namespace DrugStoreAPI.src.Services
 
             return componentAmount;
         }
+
+        public async Task<IEnumerable<DrugTechnologyDTO>> GetDrugsTechnologies(DrugTechnologyQueryDTO dto)
+        {
+            var result = await medicamentsRepository.GetDrugsTechnologiesByNameIsAndTypeIs(dto.DrugName, dto.Type, dto.IsInProggress);
+
+            var technologies = new List<DrugTechnologyDTO>();
+            foreach(var technology in result)
+            {
+                technologies.Add(new DrugTechnologyDTO()
+                {
+                    Technology = technology,
+                });
+            }
+
+            return technologies;
+        }
     }
 }

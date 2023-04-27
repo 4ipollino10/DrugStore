@@ -79,5 +79,13 @@ namespace DrugStoreAPI.src.Controllers
 
             return Ok(result);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> GetDrugsTechnologies(DrugTechnologyQueryDTO dto)
+        {
+            var result = await medicamentService.GetDrugsTechnologies(dto);
+
+            return Ok(result);
+        }
     }
 }

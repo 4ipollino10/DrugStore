@@ -24,6 +24,7 @@ namespace DrugStoreAPI.Services
         Task<IEnumerable<GetDrugAndComponentsPriceDTO>> GetDrugAndComponentsPrices(int id);
         Task<IEnumerable<DrugDTO>> GetDrugsInOrdersInProgress();
         Task<IEnumerable<DrugDTO>> GetDrugsByMinimalAmount(MedicamentTypeDTO dto);
+        Task<IEnumerable<DrugTechnologyDTO>> GetDrugsTechnologies(DrugTechnologyQueryDTO dto);
 
         Task<ICollection<DrugsComponents>> GetDrugsComponents(Drug drug, List<DrugComponentDTO> drugComponentDTOs);
     }

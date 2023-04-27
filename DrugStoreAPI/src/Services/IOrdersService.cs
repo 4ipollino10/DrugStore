@@ -20,5 +20,6 @@ namespace DrugStoreAPI.Services
         Task<IEnumerable<ClientDTO>> GetClientsByOverduedOrders();
         Task<IEnumerable<ClientDTO>> GetClientsByMedicaments(GetClientsByMedicamentsDTO dto);
         Task<IEnumerable<ClientDTO>> GetClientsByDelayedOrders(GetClientsByMedicamentsDTO dto);
+        Task<IEnumerable<ClientDTO>> GetClientsByDate(DrugOrderReportDTO dto);
     };
 }

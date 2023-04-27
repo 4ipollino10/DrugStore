@@ -452,5 +452,19 @@ namespace DrugStoreAPI.src.Services
 
             return clients;
         }
+
+        public async Task<IEnumerable<ClientDTO>> GetClientsByDate(DrugOrderReportDTO dto)
+        {
+            var result = await ordersRepository.FindClientsByDateAndNameIsAndTypeIs(dto.From, dto.To, dto.Name, dto.Type);
+
+            var ordersMapper = new OrdersMapper();
+            var clients = new List<ClientDTO>();
+            foreach(var client in result)
+            {
+                clients.Add(ordersMapper.ClientToClientDTO(client));
+            }
+
+            return clients;
+        }
     }
 }

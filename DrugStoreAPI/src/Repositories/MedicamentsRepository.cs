@@ -207,5 +207,17 @@ namespace DrugStoreAPI.src.Repositories
             return await result.ToListAsync();
         }
 
+        public async Task<IEnumerable<string>> GetDrugsTechnologiesByNameIsAndTypeIs(string drugName, MedicamentType type, bool isInProggress)
+        {
+            var result = from drugs in applicationDbContext.Drugs
+                         join ordersDrugs in applicationDbContext.OrdersDrugs
+                             on drugs.Id equals ordersDrugs.DrugId
+                         join orders in applicationDbContext.Orders
+                             on ordersDrugs.OrderId equals orders.Id
+                         where (drugName == string.Empty || drugs.Name == drugName) && (type == MedicamentType.ANY || drugs.Type == type) && (!isInProggress || orders.OrderStatus == OrderStatus.IN_PROGRESS)
+                         select drugs.Technology;
+
+            return await result.ToListAsync();
+        }
     }
 }

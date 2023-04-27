@@ -118,10 +118,28 @@ namespace DrugStoreAPI.Repositories
                              on drugs.Id equals drugsComponents.DrugId
                          join components in applicationDbContext.Components
                              on drugsComponents.ComponentId equals components.Id
-                         where components.Name == medicamentName && type == MedicamentType.ANY || components.Type == type
+                         where (medicamentName == string.Empty || components.Name == medicamentName) && (type == MedicamentType.ANY || components.Type == type)
                          select clients;
             
             return await result.Distinct().ToListAsync();
+        }
+
+        public async Task<IEnumerable<Client>> FindClientsByDateAndNameIsAndTypeIs(DateTime @from, DateTime to, string drugName, MedicamentType type)
+        {
+            var result = from orders in applicationDbContext.Orders
+                         join clients in applicationDbContext.Clients
+                             on orders.ClientId equals clients.Id
+                         join ordersDrugs in applicationDbContext.OrdersDrugs
+                             on orders.Id equals ordersDrugs.OrderId
+                         join drugs in applicationDbContext.Drugs
+                             on ordersDrugs.DrugId equals drugs.Id
+                         where
+                         (drugName == string.Empty || drugs.Name == drugName) &&
+                         (type == MedicamentType.ANY || drugs.Type == type) &&
+                         (orders.OrderDate >= @from) && (orders.OrderDate <= to)
+                         select clients;
+
+            return await result.ToListAsync();
         }
     }
 }

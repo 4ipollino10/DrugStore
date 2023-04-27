@@ -116,6 +116,13 @@ namespace DrugStoreAPI.src.Controllers
             return Ok(result);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> GetClientsByDate(DrugOrderReportDTO dto)
+        {
+            var result = await orderService.GetClientsByDate(dto);
+
+            return Ok(result);
+        }
     }
 }
 
