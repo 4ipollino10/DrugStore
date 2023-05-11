@@ -38,7 +38,7 @@ namespace DrugStoreAPI.src.Controllers
             return await medicamentService.DeleteComponent(id);
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> GetById(ComponentDTO dto)
         {
             var component = await medicamentService.GetComponentById(dto.Id);

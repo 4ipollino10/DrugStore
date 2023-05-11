@@ -63,7 +63,11 @@ namespace DrugStoreAPI.src.Repositories
 
         public async Task<IEnumerable<Component>> GetAllComponents()
         {
-            return await applicationDbContext.Components.ToListAsync();
+            var result = from component in applicationDbContext.Components
+                         orderby component.Id
+                         select component;
+
+            return await result.ToListAsync();
         }
 
         public async Task<Drug> InsertDrug(Drug drug)
@@ -120,7 +124,10 @@ namespace DrugStoreAPI.src.Repositories
 
         public async Task<IEnumerable<Drug>> GetAllDrugs()
         {
-            return await applicationDbContext.Drugs.ToListAsync();
+            var result = from drug in applicationDbContext.Drugs
+                         orderby drug.Id
+                         select drug;
+            return await result.ToListAsync();
         }
 
         public async Task<IEnumerable<Component>> FindComponentsByCriticalAmount()

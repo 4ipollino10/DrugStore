@@ -18,6 +18,19 @@
           }
         }
       },
+      "Evolve/3.1.0": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/Evolve.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/Evolve.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      },
       "LanguageExt.Core/4.4.2": {
         "type": "package",
         "dependencies": {
@@ -789,6 +802,20 @@
         "lib/netstandard2.1/Castle.Core.dll",
         "lib/netstandard2.1/Castle.Core.xml",
         "readme.txt"
+      ]
+    },
+    "Evolve/3.1.0": {
+      "sha512": "B2w+SahJIkvpWxwhKDfjIcQZXo38l605+8IhWdK/MbxFgHjze3bItwhc1MP3Z2Go6ZlTo7ElvMhb/0mR3plRaw==",
+      "type": "package",
+      "path": "evolve/3.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "evolve.3.1.0.nupkg.sha512",
+        "evolve.nuspec",
+        "lib/netstandard2.0/Evolve.dll",
+        "lib/netstandard2.0/Evolve.pdb",
+        "lib/netstandard2.0/Evolve.xml"
       ]
     },
     "LanguageExt.Core/4.4.2": {
@@ -2912,6 +2939,7 @@
   },
   "projectFileDependencyGroups": {
     "net7.0": [
+      "Evolve >= 3.1.0",
       "LanguageExt.Core >= 4.4.2",
       "Microsoft.EntityFrameworkCore.Proxies >= 7.0.4",
       "Npgsql.EntityFrameworkCore.PostgreSQL >= 7.0.3"
@@ -2956,6 +2984,10 @@
       "net7.0": {
         "targetAlias": "net7.0",
         "dependencies": {
+          "Evolve": {
+            "target": "Package",
+            "version": "[3.1.0, )"
+          },
           "LanguageExt.Core": {
             "target": "Package",
             "version": "[4.4.2, )"

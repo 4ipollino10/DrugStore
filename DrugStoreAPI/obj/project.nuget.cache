@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "ZFCcS/YwP8MJx01fYCYr+kcRCIvaegIOqCA/4nMyHzOppKZc4TO4aJg/uHl0cIF6Y471dyjGGxuLU87AtussvQ==",
+  "dgSpecHash": "S1I/FNZpLoxV7iito5jizW3XUIpCQflaa0RAbdIiuA9xGwVo8m8XscNse+RzKiyf+UzWFJubD8hlJF8MHicTwQ==",
   "success": true,
   "projectFilePath": "C:\\work\\DrugStore\\DrugStore\\DrugStoreAPI\\DrugStoreAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Timur\\.nuget\\packages\\castle.core\\5.1.0\\castle.core.5.1.0.nupkg.sha512",
+    "C:\\Users\\Timur\\.nuget\\packages\\evolve\\3.1.0\\evolve.3.1.0.nupkg.sha512",
     "C:\\Users\\Timur\\.nuget\\packages\\languageext.core\\4.4.2\\languageext.core.4.4.2.nupkg.sha512",
     "C:\\Users\\Timur\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\6.0.0\\microsoft.bcl.asyncinterfaces.6.0.0.nupkg.sha512",
     "C:\\Users\\Timur\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",

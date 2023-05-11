@@ -18,6 +18,18 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         builder.Configuration
         .GetConnectionString("DrugStoreConnectionString")), ServiceLifetime.Scoped);
 
+var frontAllowSpecificOrigin = "_frontAllowSpecificOrigin";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: frontAllowSpecificOrigin, policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddScoped<IMedicamentsService, MedicamentsService>();
 builder.Services.AddScoped<IMedicamentsRepository, MedicamentsRepository>();
 builder.Services.AddScoped<IOrdersService, OrdersService>();
@@ -30,5 +42,7 @@ app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 app.UseRouting();
 
 app.MapControllers();
+
+app.UseCors(frontAllowSpecificOrigin);
 
 app.Run();
