@@ -105,7 +105,7 @@ namespace DrugStoreAPI.Repositories
             return await result.Distinct().ToListAsync();
         }
 
-        public async Task<IEnumerable<Client>> FindClientsByOrderStatusDelayedMedicamentNameIsTypeIs(string medicamentName, MedicamentType type)
+        public async Task<IEnumerable<Client>> FindClientsByOrderStatusDelayedMedicamentNameIsTypeIs(MedicamentType type)
         {
             var result = from clients in applicationDbContext.Clients
                          join orders in applicationDbContext.Orders
@@ -118,7 +118,7 @@ namespace DrugStoreAPI.Repositories
                              on drugs.Id equals drugsComponents.DrugId
                          join components in applicationDbContext.Components
                              on drugsComponents.ComponentId equals components.Id
-                         where (medicamentName == string.Empty || components.Name == medicamentName) && (type == MedicamentType.ANY || components.Type == type)
+                         where (orders.OrderStatus == OrderStatus.DELAYED) && (type == MedicamentType.ANY || components.Type == type) 
                          select clients;
             
             return await result.Distinct().ToListAsync();

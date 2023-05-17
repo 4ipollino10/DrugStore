@@ -52,6 +52,10 @@ namespace DrugStoreAPI.Entities
                 .Property(o => o.ReceivingDate)
                 .HasColumnName("receiving_date")
                 .IsRequired(true);
+            builder
+                .Property(o => o.UsedComponents)
+                .HasColumnName("used_components")
+                .IsRequired(true);
             
         }
     }

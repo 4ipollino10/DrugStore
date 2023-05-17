@@ -295,7 +295,6 @@ namespace DrugStoreAPI.src.Services
             var components = new List<ComponentDTO>();
             foreach(var component in sortedTmpMap)
             {
-                Console.WriteLine(component.Value);
                 components.Add(medicametsMapper.ComponentToComponentDTO(component.Key));
             }
                 
@@ -323,7 +322,7 @@ namespace DrugStoreAPI.src.Services
             var amount = 0;
             foreach(var componentsAmount in result)
             {
-                amount += amount;
+                amount += componentsAmount;
             }
 
             var componentAmount = new ComponentAmountDTO()

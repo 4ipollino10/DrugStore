@@ -31,6 +31,7 @@ namespace DrugStoreAPI.src.Services
             {
                 client = await ordersRepository.InsertClient(mapper.ClientDTOtoClient(dto.Client));
             }
+            Console.WriteLine(client.Name);
 
             var order = mapper.OrderDTOtoOrder(dto);
 
@@ -45,7 +46,6 @@ namespace DrugStoreAPI.src.Services
             {
                 order.OrderStatus = Utils.OrderStatus.COMPLETED;
                 order.AppointedDate = order.OrderDate;
-                order.ReceivingDate = order.OrderDate;
                 order.UsedComponents = false;
             }
             else if (IsEnoughComponents(dto.Drugs))
@@ -296,6 +296,7 @@ namespace DrugStoreAPI.src.Services
             }
 
             order.ReceivingDate = dto.ReceivingDate;
+            order.OrderStatus = OrderStatus.ISSUED;
 
             await ordersRepository.UpdateOrder(order);
 
@@ -440,7 +441,7 @@ namespace DrugStoreAPI.src.Services
 
         public async Task<IEnumerable<ClientDTO>> GetClientsByDelayedOrders(GetClientsByMedicamentsDTO dto)
         {
-            var result = await ordersRepository.FindClientsByOrderStatusDelayedMedicamentNameIsTypeIs(dto.MedicamentName, dto.MedicamentType);
+            var result = await ordersRepository.FindClientsByOrderStatusDelayedMedicamentNameIsTypeIs(dto.MedicamentType);
 
             var ordersMapper = new OrdersMapper();
             var clients = new List<ClientDTO>();

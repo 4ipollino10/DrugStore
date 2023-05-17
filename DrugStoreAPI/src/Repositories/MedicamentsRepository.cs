@@ -178,7 +178,7 @@ namespace DrugStoreAPI.src.Repositories
                              on drugs.Id equals drugsComponents.DrugId
                          join components in applicationDbContext.Components
                              on drugsComponents.ComponentId equals components.Id
-                         where type == MedicamentType.ANY || components.Type == type
+                         where (type == MedicamentType.ANY || components.Type == type)
                          select components;
 
             return await result.ToListAsync();
@@ -186,6 +186,7 @@ namespace DrugStoreAPI.src.Repositories
 
         public async Task<IEnumerable<Drug>> GetDrugsByMinimalAmountAndTypeIs(MedicamentType type)
         {
+            //todo minimal;
             var result = from drugs in applicationDbContext.Drugs
                          where type == MedicamentType.ANY || drugs.Type == type
                          orderby drugs.Amount
@@ -193,7 +194,7 @@ namespace DrugStoreAPI.src.Repositories
             return await result.ToListAsync();
         }
 
-        public async Task<IEnumerable<int>> GetUsedAmountComponentForPeriodAndTypeIs(DateTime @from, DateTime to, string componentName)
+        public async Task<IEnumerable<int>> GetUsedAmountComponentForPeriodAndTypeIs(DateTime fromm, DateTime to, string componentName)
         {
             var result = from orders in applicationDbContext.Orders
                          join ordersDrugs in applicationDbContext.OrdersDrugs
@@ -205,10 +206,10 @@ namespace DrugStoreAPI.src.Repositories
                          join components in applicationDbContext.Components
                              on drugsComponents.ComponentId equals components.Id
                          where 
-                         orders.OrderStatus == OrderStatus.COMPLETED 
-                         && orders.UsedComponents 
-                         && components.Name == componentName 
-                         && (orders.OrderDate >= @from && orders.OrderDate <= to)
+                         (orders.OrderStatus == OrderStatus.ISSUED) 
+                         && (orders.UsedComponents)
+                         && (components.Name == componentName) 
+                         && (orders.OrderDate >= fromm && orders.OrderDate <= to)
                          select drugsComponents.Amount;
 
             return await result.ToListAsync();
@@ -221,7 +222,9 @@ namespace DrugStoreAPI.src.Repositories
                              on drugs.Id equals ordersDrugs.DrugId
                          join orders in applicationDbContext.Orders
                              on ordersDrugs.OrderId equals orders.Id
-                         where (drugName == string.Empty || drugs.Name == drugName) && (type == MedicamentType.ANY || drugs.Type == type) && (!isInProggress || orders.OrderStatus == OrderStatus.IN_PROGRESS)
+                         where (drugName == string.Empty || drugs.Name == drugName) 
+                         && (type == MedicamentType.ANY || drugs.Type == type) 
+                         && (!isInProggress || orders.OrderStatus == OrderStatus.IN_PROGRESS)
                          select drugs.Technology;
 
             return await result.ToListAsync();

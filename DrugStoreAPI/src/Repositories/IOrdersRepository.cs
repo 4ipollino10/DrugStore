@@ -19,6 +19,6 @@ namespace DrugStoreAPI.src.Repositories
         Task<IEnumerable<Client>> FindClientsByMedicamentNameIsOrTypeIs(string drugName, MedicamentType type);
         Task<IEnumerable<Client>> FindClientsByDateAndNameIsAndTypeIs(DateTime from, DateTime to, string drugName, MedicamentType type);
 
-        Task<IEnumerable<Client>> FindClientsByOrderStatusDelayedMedicamentNameIsTypeIs(string drugName, MedicamentType type);
+        Task<IEnumerable<Client>> FindClientsByOrderStatusDelayedMedicamentNameIsTypeIs(MedicamentType type);
     }
 }

@@ -4,6 +4,7 @@
     {
         DELAYED,
         IN_PROGRESS,
-        COMPLETED
+        COMPLETED,
+        ISSUED
     }
 }
