@@ -14,12 +14,5 @@ namespace DrugStoreAPI.Services
         Task<OrderDTO> MakeOrder(OrderDTO dto);
         Task<OrderDTO> StockComponents(OrderDTO dto);
         Task<bool> CompleteOrder(OrderDTO dto);
-
-        Task<ClientDTO> GetClientById(int id);
-        Task<IEnumerable<ClientDTO>> GetAllClients();
-        Task<IEnumerable<ClientDTO>> GetClientsByOverduedOrders();
-        Task<IEnumerable<ClientDTO>> GetClientsByMedicaments(GetClientsByMedicamentsDTO dto);
-        Task<IEnumerable<ClientDTO>> GetClientsByDelayedOrders(GetClientsByMedicamentsDTO dto);
-        Task<IEnumerable<ClientDTO>> GetClientsByDate(DrugOrderReportDTO dto);
     };
 }

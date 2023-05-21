@@ -2,6 +2,7 @@
 using DrugStoreAPI.DTOs.OrderDTOs;
 using DrugStoreAPI.Services;
 using DrugStoreAPI.src.DTOs.QueriesDTOs;
+using DrugStoreAPI.src.Services;
 using DrugStoreAPI.src.Utils;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,17 +12,17 @@ namespace DrugStoreAPI.src.Controllers
     [ApiController]
     public class DrugsController : Controller
     {
-        private readonly IMedicamentsService medicamentService;
+        private readonly IDrugsService drugsService;
 
-        public DrugsController(IMedicamentsService medicamentService)
+        public DrugsController(IDrugsService drugsService)
         {
-            this.medicamentService = medicamentService;
+            this.drugsService = drugsService;
         }
 
         [HttpPost]
         public async Task<IActionResult> Add(DrugDTO dto)
         {
-            var drug = await medicamentService.AddDrug(dto);
+            var drug = await drugsService.AddDrug(dto);
 
             return Ok(drug);
         }
@@ -29,7 +30,7 @@ namespace DrugStoreAPI.src.Controllers
         [HttpPost]
         public async Task<IActionResult> Update(DrugDTO dto)
         {
-            var updatedDrug = await medicamentService.UpdateDrug(dto);
+            var updatedDrug = await drugsService.UpdateDrug(dto);
 
             return Ok(updatedDrug);
         }
@@ -37,13 +38,13 @@ namespace DrugStoreAPI.src.Controllers
         [HttpDelete("{id}")]
         public async Task<bool> Delete(int id)
         {
-            return await medicamentService.DeleteDrug(id);
+            return await drugsService.DeleteDrug(id);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var drug = await medicamentService.GetDrugById(id);
+            var drug = await drugsService.GetDrugById(id);
 
             return Ok(drug);
         }
@@ -51,7 +52,7 @@ namespace DrugStoreAPI.src.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllDrugs()
         {
-            var drugs = await medicamentService.GetAllDrugs();
+            var drugs = await drugsService.GetAllDrugs();
 
             return Ok(drugs);
         }
@@ -59,7 +60,7 @@ namespace DrugStoreAPI.src.Controllers
         [HttpGet("{id}")]
         public IActionResult GetDrugAndComponentsPrices(int id)
         {
-            var result = medicamentService.GetDrugAndComponentsPrices(id);
+            var result = drugsService.GetDrugAndComponentsPrices(id);
 
             return Ok(result);
         }
@@ -67,7 +68,7 @@ namespace DrugStoreAPI.src.Controllers
         [HttpGet]
         public IActionResult GetDrugsInOrdersInProgress()
         {
-            var result = medicamentService.GetDrugsInOrdersInProgress();
+            var result = drugsService.GetDrugsInOrdersInProgress();
 
             return Ok(result);
         }
@@ -75,15 +76,15 @@ namespace DrugStoreAPI.src.Controllers
         [HttpPost]
         public async Task<IActionResult> GetDrugsByMinimalAmount(MedicamentTypeDTO dto)
         {
-            var result = await medicamentService.GetDrugsByMinimalAmount(dto);
+            var result = await drugsService.GetDrugsByMinimalAmount(dto);
 
             return Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetDrugsTechnologies(DrugTechnologyQueryDTO dto)
+        public async Task<IActionResult> GetDrugsTechnologies(DrugInProgressTechnologyReportDTO dto)
         {
-            var result = await medicamentService.GetDrugsTechnologies(dto);
+            var result = await drugsService.GetDrugsTechnologies(dto);
 
             return Ok(result);
         }

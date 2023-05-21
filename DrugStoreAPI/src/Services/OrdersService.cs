@@ -1,4 +1,4 @@
-﻿using DrugStoreAPI.Exceptions;
+﻿using DrugStoreAPI.src.Configuration.Exceptions;
 using DrugStoreAPI.src.Mappers.MedicamentsMappers;
 using DrugStoreAPI.Mappers.OrderMappers;
 using DrugStoreAPI.DTOs.OrderDTOs;
@@ -13,23 +13,32 @@ namespace DrugStoreAPI.src.Services
     public class OrdersService : IOrdersService
     {
         private readonly IOrdersRepository ordersRepository;
-        private readonly IMedicamentsRepository medicamentsRepository;
-        private readonly IMedicamentsService medicamentsService;
+        private readonly IOrdersRepository orderRepository;
+        private readonly IComponentsRepository componentsRepository;
+        private readonly IDrugsRepository drugsRepository;
+        private readonly IClientsRepository clientsRepository;
+        private readonly IDrugsService drugsService;
 
-        public OrdersService(IOrdersRepository orderRepository, IMedicamentsRepository medicamentsRepository, IMedicamentsService medicamentsService)
+        public OrdersService(IOrdersRepository orderRepository, 
+                            IComponentsRepository componentsRepository, 
+                            IDrugsRepository drugsRepository, 
+                            IClientsRepository clientsRepository,
+                            IDrugsService drugsService)
         {
-            ordersRepository = orderRepository;
-            this.medicamentsRepository = medicamentsRepository;
-            this.medicamentsService = medicamentsService;
+            this.clientsRepository = clientsRepository;
+            this.drugsService = drugsService;
+            this.orderRepository = orderRepository;
+            this.componentsRepository = componentsRepository;
+            this.drugsRepository = drugsRepository;
         }
 
         public async Task<OrderDTO> AddOrder(OrderDTO dto)
         {
             var mapper = new OrdersMapper();
-            var client = await ordersRepository.GetClientById(dto.Client.Id);
+            var client = await clientsRepository.GetClientById(dto.Client.Id);
             if (client == null)
             {
-                client = await ordersRepository.InsertClient(mapper.ClientDTOtoClient(dto.Client));
+                client = await clientsRepository.InsertClient(mapper.ClientDTOtoClient(dto.Client));
             }
             Console.WriteLine(client.Name);
 
@@ -64,7 +73,7 @@ namespace DrugStoreAPI.src.Services
             var insertedOrder = await ordersRepository.InsertOrder(order);
             var insertedOrderDTO = mapper.OrderToOrderDTO(insertedOrder);
             await SetMedicationReadiness(insertedOrderDTO.Drugs);
-
+            Console.WriteLine(insertedOrder.OrdersDrugs);
             return insertedOrderDTO;
         }
 
@@ -101,55 +110,6 @@ namespace DrugStoreAPI.src.Services
             }
 
             return orders;
-        }
-
-        public async Task<ClientDTO> GetClientById(int id)
-        {
-            var client = await ordersRepository.GetClientById(id);
-
-            if (client == null)
-            {
-                throw new ClientNotFoundException($"Client with such id: \"{id}\" do not exists!");
-            }
-
-            var mapper = new OrdersMapper();
-
-            return mapper.ClientToClientDTO(client);
-        }
-
-        public async Task<IEnumerable<ClientDTO>> GetAllClients()
-        {
-            var currentClients = await ordersRepository.GetAllClients();
-
-            if (currentClients == null)
-            {
-                throw new OrderNotFoundException("There are no clients!");
-            }
-
-            var ordersMapper = new OrdersMapper();
-            var clients = new List<ClientDTO>();
-
-            foreach (var client in currentClients)
-            {
-                clients.Add(ordersMapper.ClientToClientDTO(client));
-            }
-
-            return clients;
-        }
-
-        public async Task<IEnumerable<ClientDTO>> GetClientsByOverduedOrders()
-        {
-            var currentClients = await ordersRepository.FindClientsByOverduedOrders();
-            
-            var ordersMapper = new OrdersMapper();
-            var clients = new List<ClientDTO>();
-
-            foreach(var client in currentClients)
-            {
-                clients.Add(ordersMapper.ClientToClientDTO(client));
-            }
-
-            return clients;
         }
 
         public async Task<OrderDTO> MakeOrder(OrderDTO dto)
@@ -196,15 +156,15 @@ namespace DrugStoreAPI.src.Services
             {
                 drugComponentDTO.Component.Amount -= drugComponentDTO.Amount;
 
-                var component = await medicamentsRepository
+                var component = await componentsRepository
                     .UpdateComponent(medicamentsMapper.ComponentDTOtoComponent(drugComponentDTO.Component));
 
                 drugComponentDTO.Component = medicamentsMapper.ComponentToComponentDTO(component);
             }
 
             var drug = medicamentsMapper.DrugDTOtoDrug(drugOrderDTO.Drug);
-            drug.DrugsComponents = await medicamentsService.GetDrugsComponents(drug, drugOrderDTO.Drug.Components);
-            drug = await medicamentsRepository.UpdateDrug(drug);
+            drug.DrugsComponents = await drugsService.GetDrugsComponents(drug, drugOrderDTO.Drug.Components);
+            drug = await drugsRepository.UpdateDrug(drug);
 
             drugOrderDTO.Drug = medicamentsMapper.DrugToDrugDTO(drug);
 
@@ -259,7 +219,7 @@ namespace DrugStoreAPI.src.Services
 
                 drugComponentDTO.Component.Amount += drugComponentDTO.Amount * 10;
 
-                var component = await medicamentsRepository
+                var component = await componentsRepository
                     .UpdateComponent(medicamentsMapper.ComponentDTOtoComponent(drugComponentDTO.Component));
 
                 drugComponentDTO.Component = medicamentsMapper.ComponentToComponentDTO(component);
@@ -285,12 +245,12 @@ namespace DrugStoreAPI.src.Services
 
             foreach (var drugOrderDTO in dto.Drugs)
             {
-                var drug = await medicamentsRepository.FindDrugById(drugOrderDTO.Drug.Id);
+                var drug = await drugsRepository.FindDrugById(drugOrderDTO.Drug.Id);
 
                 drug.Amount -= 1;
 
-                drug.DrugsComponents = await medicamentsService.GetDrugsComponents(drug, drugOrderDTO.Drug.Components);
-                drug = await medicamentsRepository.UpdateDrug(drug);
+                drug.DrugsComponents = await drugsService.GetDrugsComponents(drug, drugOrderDTO.Drug.Components);
+                drug = await drugsRepository.UpdateDrug(drug);
 
                 drugOrderDTO.Drug = medicamentsMapper.DrugToDrugDTO(drug);
             }
@@ -324,7 +284,7 @@ namespace DrugStoreAPI.src.Services
 
             foreach (var orderDTO in dto.Drugs)
             {
-                var drug = await medicamentsRepository.FindDrugById(orderDTO.Drug.Id);
+                var drug = await drugsRepository.FindDrugById(orderDTO.Drug.Id);
 
                 ordersDrugs.Add(new OrdersDrugs()
                 {
@@ -353,7 +313,7 @@ namespace DrugStoreAPI.src.Services
         {
             foreach (var drugComponentDTO in dto.Drug.Components)
             {
-                var component = await medicamentsRepository.FindComponentById(drugComponentDTO.Component.Id);
+                var component = await componentsRepository.FindComponentById(drugComponentDTO.Component.Id);
 
                 if (component.Amount >= drugComponentDTO.Amount)
                 {
@@ -370,7 +330,7 @@ namespace DrugStoreAPI.src.Services
 
         private async Task<bool> SetDrugReadiness(DrugOrderDTO dto)
         {
-            var drug = await medicamentsRepository.FindDrugById(dto.Drug.Id);
+            var drug = await drugsRepository.FindDrugById(dto.Drug.Id);
 
             if (drug.Amount > 0)
             {
@@ -422,50 +382,6 @@ namespace DrugStoreAPI.src.Services
             }
 
             return orders;
-        }
-
-        public async Task<IEnumerable<ClientDTO>> GetClientsByMedicaments(GetClientsByMedicamentsDTO dto)
-        {
-            var result = await ordersRepository.FindClientsByMedicamentNameIsOrTypeIs(dto.MedicamentName, dto.MedicamentType);
-
-            var ordersMapper = new OrdersMapper();
-            var clients = new List<ClientDTO>();
-
-            foreach (var client in result)
-            {
-                clients.Add(ordersMapper.ClientToClientDTO(client));
-            }
-
-            return clients;
-        }
-
-        public async Task<IEnumerable<ClientDTO>> GetClientsByDelayedOrders(GetClientsByMedicamentsDTO dto)
-        {
-            var result = await ordersRepository.FindClientsByOrderStatusDelayedMedicamentNameIsTypeIs(dto.MedicamentType);
-
-            var ordersMapper = new OrdersMapper();
-            var clients = new List<ClientDTO>();
-
-            foreach(var client in result)
-            {
-                clients.Add(ordersMapper.ClientToClientDTO(client));
-            }
-
-            return clients;
-        }
-
-        public async Task<IEnumerable<ClientDTO>> GetClientsByDate(DrugOrderReportDTO dto)
-        {
-            var result = await ordersRepository.FindClientsByDateAndNameIsAndTypeIs(dto.From, dto.To, dto.Name, dto.Type);
-
-            var ordersMapper = new OrdersMapper();
-            var clients = new List<ClientDTO>();
-            foreach(var client in result)
-            {
-                clients.Add(ordersMapper.ClientToClientDTO(client));
-            }
-
-            return clients;
         }
     }
 }

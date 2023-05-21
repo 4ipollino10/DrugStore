@@ -11,12 +11,10 @@ namespace DrugStoreAPI.src.Controllers
     public class OrdersController : Controller
     {
         private readonly IOrdersService orderService;
-        private readonly IMedicamentsService medicamentService;
 
-        public OrdersController(IOrdersService orderService, IMedicamentsService medicamentService)
+        public OrdersController(IOrdersService orderService)
         {
             this.orderService = orderService;
-            this.medicamentService = medicamentService;
         }
 
         [HttpPost]
@@ -67,61 +65,12 @@ namespace DrugStoreAPI.src.Controllers
             return Ok(result);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetClientById(int id)
-        {
-            var client = await orderService.GetClientById(id);
-
-            return Ok(client);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAllClients()
-        {
-            var clients = await orderService.GetAllClients();
-
-            return Ok(clients);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetClientsByOverduedOrders()
-        {
-            var clients = await orderService.GetClientsByOverduedOrders();
-
-            return Ok(clients);
-        }
-
         [HttpPost]
         public async Task<IActionResult> GetOrdersByStatus(OrderStatusDTO dto)
         {
             var orders = await orderService.GetOrderByStatus(dto);
 
             return Ok(orders);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> GetClientsByMedicaments(GetClientsByMedicamentsDTO dto) 
-        {
-            var clients = await orderService.GetClientsByMedicaments(dto);
-
-            return Ok(clients);
-
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> GetClientsByDelayedOrders(GetClientsByMedicamentsDTO dto)
-        {
-            var result = await orderService.GetClientsByDelayedOrders(dto);
-
-            return Ok(result);
-        }   
-
-        [HttpPost]
-        public async Task<IActionResult> GetClientsByDate(DrugOrderReportDTO dto)
-        {
-            var result = await orderService.GetClientsByDate(dto);
-
-            return Ok(result);
         }
     }
 }

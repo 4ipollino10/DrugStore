@@ -30,10 +30,15 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddScoped<IMedicamentsService, MedicamentsService>();
-builder.Services.AddScoped<IMedicamentsRepository, MedicamentsRepository>();
+builder.Services.AddScoped<IComponentsService, ComponentsService>();
+builder.Services.AddScoped<IComponentsRepository, ComponentsRepository>();
+builder.Services.AddScoped<IDrugsService, DrugsService>();
+builder.Services.AddScoped<IDrugsRepository, DrugsRepository>();
 builder.Services.AddScoped<IOrdersService, OrdersService>();
 builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
+builder.Services.AddScoped<IClientService, ClientsService>();
+builder.Services.AddScoped<IClientsRepository, ClientsRepository>();
+
 
 var app = builder.Build();
 
